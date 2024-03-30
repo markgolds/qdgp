@@ -160,25 +160,25 @@ def run_models(
                     **kw,
                 )
                 logger.info("model: %s complete.", mn)
+                rows.extend(
+                    [
+                        mn,
+                        disease,
+                        run + 1,
+                        i + 1,
+                        hits[i],
+                        recalls[i],
+                        len(genes),
+                        len(train_seeds),
+                        train_gcc_size,
+                        avg_train_seed_deg,
+                        train_density,
+                        seed_sp,
+                        conductance,
+                        auroc,
+                        ap,
+                    ]
+                    for i in range(top_n)
+                )
 
-                for i in range(top_n):
-                    rows.append(
-                        [
-                            mn,
-                            disease,
-                            run + 1,
-                            i + 1,
-                            hits[i],
-                            recalls[i],
-                            len(genes),
-                            len(train_seeds),
-                            train_gcc_size,
-                            avg_train_seed_deg,
-                            train_density,
-                            seed_sp,
-                            conductance,
-                            auroc,
-                            ap,
-                        ],
-                    )
     return rows
