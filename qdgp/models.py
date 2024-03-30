@@ -10,9 +10,6 @@ from scipy.stats import hypergeom
 
 import qdgp.utils as ut
 
-# from qdgp.utils import scorify
-
-
 logger = logging.getLogger(__name__)
 
 

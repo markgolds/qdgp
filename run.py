@@ -46,7 +46,7 @@ def main() -> None:
         level=logging.INFO,
     )
     logging.info(params)
-    gcc_filt = dt.GraphFilterMethod.GCC
+    gcc_filt = dt.FilterGCC.FALSE
     G, code_dict, seeds_by_disease = dt.load_dataset(disease_set, network, gcc_filt)
 
     logger.info("(%d, %d) (nodes, edges).", G.number_of_nodes(), G.number_of_edges())

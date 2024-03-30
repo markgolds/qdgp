@@ -2,7 +2,7 @@
 
 import csv
 import logging
-from enum import Enum
+from enum import Flag
 from pathlib import Path
 from typing import Callable, Dict, List, Literal, Optional, Tuple, get_args
 
@@ -26,16 +26,16 @@ VALID_NETWORKS = Literal[
 _valid_networks: List[str] = list(get_args(VALID_NETWORKS))
 
 
-class GraphFilterMethod(Enum):
+class FilterGCC(Flag):
     """Controls whether or not to use only the gcc of the network."""
 
-    WHOLE = 0  # use the whole graph
-    GCC = 1  # keep only greatest connected component
+    TRUE = True
+    FALSE = False
 
 
 def _build_graph(
     g_df: pd.DataFrame,
-    filter_method: GraphFilterMethod,
+    filter_method: FilterGCC,
 ) -> Tuple[nx.Graph, Dict[int, int]]:
     """Turn pandas dataframe into graph.
 
@@ -47,7 +47,7 @@ def _build_graph(
     Return: Networkx graph and code_dict which maps gene ids to graph nodes
 
     """
-    if filter_method == GraphFilterMethod.GCC:
+    if filter_method == FilterGCC.TRUE:
         G_ = nx.from_pandas_edgelist(g_df)
         Gcc = sorted(nx.connected_components(G_), key=len, reverse=True)
         G0 = G_.subgraph(Gcc[0])
@@ -68,7 +68,7 @@ def _build_graph(
 
 def build_graph_wl(
     data_dir: str,
-    filter_method: GraphFilterMethod,
+    filter_method: FilterGCC,
 ) -> Tuple[nx.Graph, Dict[int, int]]:
     """Read csv file and convert it to a networkx graph.
 
@@ -96,7 +96,7 @@ def build_graph_wl(
 
 def build_graph_gmb(
     data_dir: str,
-    filter_method: GraphFilterMethod,
+    filter_method: FilterGCC,
 ) -> Tuple[nx.Graph, Dict[int, int]]:
     """Read csv file and convert it to a networkx graph.
 
@@ -123,7 +123,7 @@ def build_graph_gmb(
 def build_graph_loami(
     data_dir: str,
     network: str,
-    filter_method: GraphFilterMethod,
+    filter_method: FilterGCC,
 ) -> Tuple[nx.Graph, Dict[int, int]]:
     """Read csv file and convert it to a networkx graph.
 
@@ -149,7 +149,7 @@ def build_graph_loami(
         G = nx.read_graphml(f"{data_dir}/loami/HPRD.graphml")
     else:
         G = nx.read_graphml(f"{data_dir}/loami/BIOGRID.graphml")
-    if filter_method == GraphFilterMethod.GCC:
+    if filter_method == FilterGCC.TRUE:
         Gcc = sorted(nx.connected_components(G), key=len, reverse=True)
         G = G.subgraph(Gcc[0])
     GG = nx.convert_node_labels_to_integers(G)
@@ -273,10 +273,8 @@ def process_diseases_dgn(
 
     dgn_df = dgn_df.drop_duplicates()
     dgn_df = dgn_df[(dgn_df.type == "disease")]
-    score_threshold = 0.3
-    dsi_threshold = 0.5
-    dgn_df = dgn_df[dgn_df.score >= score_threshold]
-    dgn_df = dgn_df[dgn_df.DSI >= dsi_threshold]
+    dgn_df = dgn_df[dgn_df.score >= 0.3]
+    dgn_df = dgn_df[dgn_df.DSI >= 0.5]
     dgn_df = dgn_df[["geneId", "diseaseName"]]
     dgn_df = dgn_df.dropna()
     dgn_df.columns = ["gene", "disease"]
@@ -314,7 +312,7 @@ def get_disease_nodes(
 def load_dataset(
     disease_set: str,  # VALID_DATASETS = "gmb",
     network: str,  # VALID_NETWORKS = "biogrid",
-    filter_method: GraphFilterMethod,
+    filter_method: FilterGCC,
 ) -> Tuple[nx.Graph, Dict[int, int], Dict[str, List[int]]]:
     """Build network and disease data from raw files.
 
@@ -371,7 +369,7 @@ def load_dataset(
 
 def get_graph(
     network: VALID_NETWORKS = "biogrid",
-    filter_method: GraphFilterMethod = GraphFilterMethod.GCC,
+    filter_method: FilterGCC = FilterGCC.TRUE,
 ) -> nx.Graph:
     """Build network and disease data from raw files.
 
@@ -393,9 +391,13 @@ def get_graph(
         "apid",
         "hprd",
     ]:
-        G, code_dict = build_graph_loami(data_dir, network=network, gcc=gcc)
+        G, code_dict = build_graph_loami(
+            data_dir,
+            network=network,
+            filter_method=filter_method,
+        )
     elif network == "wl":
-        G, code_dict = build_graph_wl(data_dir, gcc=gcc)
+        G, code_dict = build_graph_wl(data_dir, filter_method=filter_method)
     else:
-        G, code_dict = build_graph_gmb(data_dir, gcc=gcc)
+        G, code_dict = build_graph_gmb(data_dir, filter_method=filter_method)
     return G
