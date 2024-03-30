@@ -9,8 +9,8 @@ from sklearn.model_selection import train_test_split
 
 from .utils import (
     avg_seed_degree,
+    seed_avg_shortest_path,
     seed_list_to_mask,
-    seed_shortest_paths,
     sub_density,
     sub_gcc,
 )
@@ -32,12 +32,19 @@ def hit_results(
 
     Args:
     ----
-    method: Node scoring algorithm to be used
-    G: The underlying graph
-    train_seeds: List of seed nodes that are known to the algorithms
-    test_seeds: List of seed nodes reserved for testing
-    shuffled_nodes: List of nodes in random order
-    kwargs: Arguments for model
+    method: Node scoring algorithm to be used.
+    G: The underlying graph.
+    train_seeds: List of seed nodes that are known to the algorithms.
+    test_seeds: List of seed nodes reserved for testing.
+    shuffled_nodes: List of nodes in random order.
+    kwargs: Arguments for model.
+
+    Return:
+    ------
+    cumulative_hits: Number of correct hits per iteration.
+    ordered_recalls: Recall values per iteration.
+    auroc: Area under receiver operator characterist curve.
+    ap: Average precision.
 
     """
     n = G.number_of_nodes()
@@ -91,16 +98,20 @@ def run_models(
 
     Args:
     ----
-        G: Graph upon which to walk
-        models: Node scoring algorithms to be used
-        m_names: Strings for the model names
-        kws: Arguments for the model methods
-        runs: How many runs per diseases, for averages
-        top_n: Keep this many of the top scores
-        diseases: Which diseases to evaluate
-        n_by_d: Mapping of disease name to seed nodes
-        split_ratio: Fraction of seeds to use for training
-        train_test_seed: Random seed for consistent train/test splits
+    G: Graph upon which to walk.
+    models: Node scoring algorithms to be used.
+    m_names: Strings for the model names.
+    kws: Arguments for the model methods.
+    runs: How many runs per diseases, for averages.
+    top_n: Keep this many of the top scores.
+    diseases: Which diseases to evaluate.
+    n_by_d: Mapping of disease name to seed nodes.
+    split_ratio: Fraction of seeds to use for training.
+    train_test_seed: Random seed for consistent train/test splits.
+
+    Return:
+    ------
+    rows: List of result values.
 
     """
     # shuffle node list to break ties among scores
@@ -135,7 +146,7 @@ def run_models(
             avg_train_seed_deg = avg_seed_degree(G, train_seeds)
             train_gcc_size = sub_gcc(G, train_seeds)
             train_density = sub_density(G, train_seeds)
-            seed_sp = seed_shortest_paths(G, train_seeds)
+            seed_sp = seed_avg_shortest_path(G, train_seeds)
             conductance = nx.conductance(G, train_seeds)
 
             for m, mn, kw in zip(models, m_names, kws):
@@ -149,6 +160,7 @@ def run_models(
                     **kw,
                 )
                 logger.info("model: %s complete.", mn)
+
                 for i in range(top_n):
                     rows.append(
                         [

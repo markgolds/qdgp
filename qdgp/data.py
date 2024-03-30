@@ -41,10 +41,12 @@ def _build_graph(
 
     Args:
     ----
-    g_df: Dataframe with "source" and "target" columns
-    filter_method: How to filter the ppi network
+    g_df: Dataframe with "source" and "target" columns.
+    filter_method: How to filter the ppi network.
 
-    Return: Networkx graph and code_dict which maps gene ids to graph nodes
+    Return:
+    ------
+    Networkx graph and code_dict which maps gene ids to graph nodes.
 
     """
     if filter_method == FilterGCC.TRUE:
@@ -74,10 +76,12 @@ def build_graph_wl(
 
     Args:
     ----
-    data_dir: path to data file
-    filter_method: How to filter the ppi network
+    data_dir: path to data file.
+    filter_method: How to filter the ppi network.
 
-    Return: Networkx graph and code_dict which maps gene ids to graph nodes
+    Return:
+    ------
+    Networkx graph and code_dict which maps gene ids to graph nodes.
 
     """
     wl_df = pd.read_csv(
@@ -102,10 +106,12 @@ def build_graph_gmb(
 
     Args:
     ----
-    data_dir: path to data file
-    filter_method: Use whole graph (False) or only giant component (True)
+    data_dir: path to data file.
+    filter_method: Use whole graph (False) or only giant component (True).
 
-    Return: Networkx graph and code_dict which maps gene ids to graph nodes
+    Return:
+    ------
+    Networkx graph and code_dict which maps gene ids to graph nodes.
 
     """
     gmb_df = pd.read_csv(
@@ -129,11 +135,13 @@ def build_graph_loami(
 
     Args:
     ----
-    data_dir: path to data file
-    network: name of ppi network
-    filter_method: How to filter the ppi network
+    data_dir: path to data file.
+    network: name of ppi network.
+    filter_method: How to filter the ppi network.
 
-    Return: Networkx graph and code_dict which maps gene ids to graph nodes
+    Return:
+    ------
+    Networkx graph and code_dict which maps gene ids to graph nodes.
 
     """
     if network not in _valid_networks:
@@ -168,11 +176,13 @@ def process_diseases_gmb(
 
     Args:
     ----
-    node_list: list of nodes from the graph
-    code_dict: dictionary mapping gene ids to node labels
-    data_dir: string reprsenting data path
+    node_list: list of nodes from the graph.
+    code_dict: dictionary mapping gene ids to node labels.
+    data_dir: string reprsenting data path.
 
-    Return: pandas dataframe with "disease" and "gene" columns
+    Return:
+    ------
+    pandas dataframe with "disease" and "gene" columns.
 
     """
     df_rows = []
@@ -225,11 +235,13 @@ def process_diseases_ot(
 
     Args:
     ----
-    node_list: list of nodes from the graph, ignored in this function
-    code_dict: dictionary mapping gene ids to node labels
-    data_dir: string reprsenting data path
+    node_list: list of nodes from the graph, ignored in this function.
+    code_dict: dictionary mapping gene ids to node labels.
+    data_dir: string reprsenting data path.
 
-    Returns a pandas dataframe with "disease" and "gene" columns
+    Return:
+    ------
+    Pandas dataframe with "disease" and "gene" columns.
 
     """
     ot_df = pd.read_csv(
@@ -258,11 +270,13 @@ def process_diseases_dgn(
 
     Args:
     ----
-    node_list: list of nodes from the graph, ignored in this function
-    code_dict: dictionary mapping gene ids to node labels
-    data_dir: string reprsenting data path
+    node_list: list of nodes from the graph, ignored in this function.
+    code_dict: dictionary mapping gene ids to node labels.
+    data_dir: string reprsenting data path.
 
-    Returns a pandas dataframe with "disease" and "gene" columns
+    Return:
+    ------
+    Pandas dataframe with "disease" and "gene" columns.
 
     """
     dgn_df = pd.read_csv(
@@ -299,9 +313,9 @@ def get_disease_nodes(
 
     Args:
     ----
-    node_list: List of nodes in the graph
-    code_dict: Maps gene ids to node ids
-    data_dir: Path where data is stored
+    node_list: List of nodes in the graph.
+    code_dict: Maps gene ids to node ids.
+    data_dir: Path where data is stored.
     method: Method for reading the desired data set.
 
     """
@@ -318,9 +332,15 @@ def load_dataset(
 
     Args:
     ----
-    disease_set: Name of the data set
-    network: Name of the ppi network
-    filter_method: How to filter the ppi network
+    disease_set: Name of the data set.
+    network: Name of the ppi network.
+    filter_method: Whether or not to keep only the greatest connected compoenet.
+
+    Return:
+    ------
+    G: The PPI network.
+    code_dict: Dictionary mapping gene ids to node values.
+    disease_nodes_by_disease: Dictionary mapping disease names to a list of seed nodes.
 
     """
     if disease_set not in _valid_datasets:
@@ -375,8 +395,8 @@ def get_graph(
 
     Args:
     ----
-    network: Name of the PPI network
-    filter_method: How to filter the ppi network
+    network: Name of the PPI network.
+    filter_method: How to filter the ppi network.
 
     """
     if network not in _valid_networks:

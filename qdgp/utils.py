@@ -9,8 +9,12 @@ def scorify(S: np.ndarray, seed_list: List[int]) -> np.ndarray:
 
     Args:
     ----
-        S: nxn score matrix
-        seed_list: List of nodes that are seeds
+    S: nxn score matrix.
+    seed_list: List of nodes that are seeds.
+
+    Return:
+    ------
+    Score for each node in the graph, which is the sum of scores to each seed node.
 
     """
     return S[:, seed_list].sum(axis=1)
@@ -21,8 +25,12 @@ def seed_list_to_mask(seed_list: List[int], n: int) -> np.ndarray:
 
     Args:
     ----
-        seed_list: List of nodes that are seeds
-        n: Number of entries in the returned array
+    seed_list: List of nodes that are seeds.
+    n: Number of entries in the returned array.
+
+    Return:
+    ------
+    Array with 1s at seed indices.
 
     """
     train_seed_mask = np.zeros(n, dtype=int)
@@ -31,6 +39,7 @@ def seed_list_to_mask(seed_list: List[int], n: int) -> np.ndarray:
 
 
 def seed_mask_to_list(seed_mask: np.ndarray) -> np.ndarray:
+    """Retreive indices where seeds are located."""
     return np.where(seed_mask > 0)[0]
 
 
@@ -55,21 +64,22 @@ def inv_code_dict(code_dict: Dict[int, int]) -> Dict[int, int]:
 
     Args:
     ----
-        code_dict: A dictionary mapping node indices to gene ids
+    code_dict: A dictionary mapping node indices to gene ids.
+
+    Return:
+    ------
+    Dictionary mapping gene ides to node indices.
 
     """
     return {v: k for k, v in code_dict.items()}
-
-
-def seed_connected_components(G: "nx.Graph", seed_list: List) -> List["nx.Graph"]:
-    return sorted(nx.connected_components(G.subgraph(seed_list)), key=len, reverse=True)
 
 
 def sub_density(G: "nx.Graph", seed_list: List) -> float:
     return nx.density(G.subgraph(seed_list))
 
 
-def seed_shortest_paths(G: "nx.Graph", seed_list: List) -> float:
+def seed_avg_shortest_path(G: "nx.Graph", seed_list: List) -> float:
+    """Compute the average shortest path, averaged over ever pair of seeds."""
     import itertools
 
     c = 0
@@ -88,6 +98,15 @@ def sub_gcc(G: "nx.Graph", seed_list: List) -> int:
 
 
 def const_seed_diagonals(G: "nx.Graph", seeds: np.ndarray, val: float) -> np.ndarray:
+    """Set a constant value on the diagonal indices corresponding to seeds.
+
+    Args:
+    ----
+    G: The ppi network.
+    seeds: Nodes corresponding to seeds.
+    val: The constant value to set for the diagoanls.
+
+    """
     diag = np.zeros(G.number_of_nodes())
     for s in seeds:
         diag[s] = val
