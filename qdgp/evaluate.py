@@ -7,13 +7,7 @@ import numpy as np
 from sklearn.metrics import average_precision_score, roc_auc_score
 from sklearn.model_selection import train_test_split
 
-from .utils import (
-    avg_seed_degree,
-    seed_avg_shortest_path,
-    seed_list_to_mask,
-    sub_density,
-    sub_gcc,
-)
+import qdgp.utils as ut
 
 warnings.simplefilter(action="ignore", category=FutureWarning)
 
@@ -28,33 +22,33 @@ def hit_results(
     shuffled_nodes: np.ndarray,
     **kwargs: Dict[str, Any],
 ) -> Tuple[np.ndarray, np.ndarray, float, float]:
-    """Run method on datasets and return number of hits by iteration.
+    """Run method on datasets and return number of test seed hits by iteration.
 
     Args:
     ----
-    method: Node scoring algorithm to be used.
-    G: The underlying graph.
-    train_seeds: List of seed nodes that are known to the algorithms.
-    test_seeds: List of seed nodes reserved for testing.
-    shuffled_nodes: List of nodes in random order.
-    kwargs: Arguments for model.
+        method: Node scoring algorithm to be used.
+        G: The underlying graph.
+        train_seeds: List of seed nodes that are known to the algorithms.
+        test_seeds: List of seed nodes reserved for testing.
+        shuffled_nodes: List of nodes in random order.
+        kwargs: Arguments for model.
 
-    Return:
-    ------
-    cumulative_hits: Number of correct hits per iteration.
-    ordered_recalls: Recall values per iteration.
-    auroc: Area under receiver operator characterist curve.
-    ap: Average precision.
+    Returns:
+    -------
+        cumulative_hits: Number of correct hits per iteration.
+        ordered_recalls: Recall values per iteration.
+        auroc: Area under receiver operator characterist curve.
+        ap: Average precision.
 
     """
     n = G.number_of_nodes()
-    train_seed_mask = seed_list_to_mask(train_seeds, n)
+    train_seed_mask = ut.seed_list_to_mask(train_seeds, n)
     test_mask = (1 - train_seed_mask).astype(bool)
     logger.info("Training...")
     scores = method(G, train_seeds, **kwargs)
     logger.info("Done.")
     scores = scores[test_mask]  # discard scores of the train nodes
-    y_true = seed_list_to_mask(
+    y_true = ut.seed_list_to_mask(
         test_seeds,
         n,
     )  # vector of non-seeds/seeds in test set
@@ -87,7 +81,7 @@ def run_models(
     models: List[Callable],
     m_names: List[str],
     kws: List[Dict],
-    runs: int,
+    num_runs: int,
     top_n: int,
     diseases: List[str],
     n_by_d: Dict[str, List[int]],
@@ -98,20 +92,20 @@ def run_models(
 
     Args:
     ----
-    G: Graph upon which to walk.
-    models: Node scoring algorithms to be used.
-    m_names: Strings for the model names.
-    kws: Arguments for the model methods.
-    runs: How many runs per diseases, for averages.
-    top_n: Keep this many of the top scores.
-    diseases: Which diseases to evaluate.
-    n_by_d: Mapping of disease name to seed nodes.
-    split_ratio: Fraction of seeds to use for training.
-    train_test_seed: Random seed for consistent train/test splits.
+        G: Graph upon which to walk.
+        models: Node scoring algorithms to be used.
+        m_names: Strings for the model names.
+        kws: Arguments for the model methods.
+        num_runs: How many runs per diseases, for averages.
+        top_n: Keep this many of the top scores.
+        diseases: Which diseases to evaluate.
+        n_by_d: Mapping of disease name to seed nodes.
+        split_ratio: Fraction of seeds to use for training.
+        train_test_seed: Random seed for consistent train/test splits.
 
-    Return:
-    ------
-    rows: List of result values.
+    Returns:
+    -------
+        rows: List of result values.
 
     """
     # shuffle node list to break ties among scores
@@ -119,13 +113,13 @@ def run_models(
     shuffled_nodes = rng.permutation(list(G.nodes()))
 
     rows = []
-    for run in range(runs):
+    for run in range(num_runs):
         for c, disease in enumerate(diseases):
             genes = n_by_d[disease]
             logger.info(
                 "Run: %d/%d - Disease: %d/%d: %s, %d seeds",
                 run + 1,
-                runs,
+                num_runs,
                 c + 1,
                 len(diseases),
                 disease,
@@ -143,10 +137,10 @@ def run_models(
                     train_size=split_ratio,
                 )
 
-            avg_train_seed_deg = avg_seed_degree(G, train_seeds)
-            train_gcc_size = sub_gcc(G, train_seeds)
-            train_density = sub_density(G, train_seeds)
-            seed_sp = seed_avg_shortest_path(G, train_seeds)
+            avg_train_seed_deg = ut.avg_seed_degree(G, train_seeds)
+            train_gcc_size = ut.sub_gcc(G, train_seeds)
+            train_density = ut.sub_density(G, train_seeds)
+            seed_sp = ut.seed_avg_shortest_path(G, train_seeds)
             conductance = nx.conductance(G, train_seeds)
 
             for m, mn, kw in zip(models, m_names, kws):

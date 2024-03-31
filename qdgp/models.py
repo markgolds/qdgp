@@ -18,12 +18,12 @@ def qrw(H: np.ndarray, t: float = 1.0) -> np.ndarray:
 
     Args:
     ----
-    H: Matrix to use as Hamiltonian
-    t: Walk for time t
+        H: Matrix to use as Hamiltonian
+        t: Walk for time t
 
-    Return:
-    ------
-    P: Probability transition matrix
+    Returns:
+    -------
+        P: Probability transition matrix
 
     """
     H_ = torch.from_numpy(H)
@@ -44,16 +44,16 @@ def qrw_score(
 
     Args:
     ----
-    G: Graph upon which to walk.
-    seed_list: List of nodes that are seeds.
-    H: Matrix to use as Hamiltonian.
-    t: Walk for time t.
-    P: Probability transition matrix, if pre-computed.
-    diag: How to set diagoanls of the Hamiltonian.
+        G: Graph upon which to walk.
+        seed_list: List of nodes that are seeds.
+        H: Matrix to use as Hamiltonian.
+        t: Walk for time t.
+        P: Probability transition matrix, if pre-computed.
+        diag: How to set diagoanls of the Hamiltonian.
 
-    Return:
-    ------
-    Score for each node in G.
+    Returns:
+    -------
+        Score for each node in G.
 
     """
     if P is None:
@@ -73,16 +73,16 @@ def _sparse_qrw_score(
 
     Args:
     ----
-    G: Graph that the walk occures on.
-    t: Time for which the walk lasts.
-    seeds: Seed nodes.
-    train_seed_mask: 0/1 array of false/true test nodes.
-    H: Matrix to use as Hamiltonian.
-    diag: How to set diagoanls of the Hamiltonian.
+        G: Graph that the walk occures on.
+        t: Time for which the walk lasts.
+        seeds: Seed nodes.
+        train_seed_mask: 0/1 array of false/true test nodes.
+        H: Matrix to use as Hamiltonian.
+        diag: How to set diagoanls of the Hamiltonian.
 
-    Return:
-    ------
-    Score for each node in G.
+    Returns:
+    -------
+        Score for each node in G.
 
     """
     n = G.number_of_nodes()
@@ -110,6 +110,10 @@ def crw(L: np.ndarray, t: float = 1.0) -> np.ndarray:
         L: Laplacian of G.
         t: Walk for time t.
 
+    Returns:
+    -------
+        P: Probability transition matrix
+
     """
     L_ = torch.from_numpy(L)
     P = torch.matrix_exp(-1 * t * L_)
@@ -127,15 +131,15 @@ def crw_score(
 
     Args:
     ----
-    G: Graph upon which to walk.
-    seed_list: List of seed nodes.
-    L: Laplacian of G.
-    t: Walk for time t.
-    P: Probability transition matrix, if pre-computed.
+        G: Graph upon which to walk.
+        seed_list: List of seed nodes.
+        L: Laplacian of G.
+        t: Walk for time t.
+        P: Probability transition matrix, if pre-computed.
 
-    Return:
-    ------
-    Scores for each node in G.
+    Returns:
+    -------
+        Scores for each node in G.
 
     """
     if P is None:
@@ -153,13 +157,13 @@ def neighborhood_score(G: nx.Graph, seed_list: List, A: np.ndarray) -> np.ndarra
 
     Args:
     ----
-    G: Graph to use.
-    seed_list: List of nodes that are seeds.
-    A: Dense adjacency of G.
+        G: Graph to use.
+        seed_list: List of nodes that are seeds.
+        A: Dense adjacency of G.
 
     Reutrn:
-    ------
-    Scores for each node in G.
+    -------
+        Scores for each node in G.
 
     """
     n = G.number_of_nodes()
@@ -175,12 +179,12 @@ def normalize_adjacency(G: nx.Graph, A: Optional[np.ndarray] = None) -> np.ndarr
 
     Args:
     ----
-    G: Graph to use.
-    A: Dense adjacency of G.
+        G: Graph to use.
+        A: Dense adjacency of G.
 
-    Return:
-    ------
-    The normalized adjacency matrix, defined by D^(-1/2)AD^(-1/2).
+    Returns:
+    -------
+        The normalized adjacency matrix, defined by D^(-1/2)AD^(-1/2).
 
     """
     # TODO: will break if there are isolated nodes?:
@@ -201,14 +205,14 @@ def rwr_score(
 
     Args:
     ----
-    G: Graph to use.
-    seed_list: List of nodes that are seeds.
-    return_prob: Probability of return to seed nodes.
-    normalized_adjacency: D^{-1/2} A D^{-1/2}.
+        G: Graph to use.
+        seed_list: List of nodes that are seeds.
+        return_prob: Probability of return to seed nodes.
+        normalized_adjacency: D^{-1/2} A D^{-1/2}.
 
-    Return:
-    ------
-    Scores for each node in G.
+    Returns:
+    -------
+        Scores for each node in G.
 
     """
     # Modified from https://github.com/mims-harvard/pathways/blob/master/prediction/randomWalk.py
@@ -251,15 +255,15 @@ def diamond_score(
 
     Args:
     ----
-    G: Graph to use.
-    seed_list: List of nodes that are seeds.
-    A: Dense adjacency of G.
-    alpha: diamond parameter.
-    number_to_rank: Score only this many nodes.
+        G: Graph to use.
+        seed_list: List of nodes that are seeds.
+        A: Dense adjacency of G.
+        alpha: diamond parameter.
+        number_to_rank: Score only this many nodes.
 
-    Return:
-    ------
-    Scores for the top `number_to_rank` nodes, according to the diamond algorithm.
+    Returns:
+    -------
+        Scores for the top `number_to_rank` nodes, according to the diamond algorithm.
 
     """
     train_seed_mask = ut.seed_list_to_mask(seed_list, G.number_of_nodes())

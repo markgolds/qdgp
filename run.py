@@ -46,7 +46,7 @@ def main() -> None:
         level=logging.INFO,
     )
     logging.info(params)
-    gcc_filt = dt.FilterGCC.FALSE
+    gcc_filt = dt.FilterGCC.TRUE
     G, code_dict, seeds_by_disease = dt.load_dataset(disease_set, network, gcc_filt)
 
     logger.info("(%d, %d) (nodes, edges).", G.number_of_nodes(), G.number_of_edges())
@@ -99,7 +99,7 @@ def main() -> None:
         models,
         m_names,
         kws,
-        runs=runs,
+        num_runs=runs,
         top_n=TOP_N,
         diseases=diseases,
         n_by_d=seeds_by_disease,

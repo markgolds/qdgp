@@ -9,12 +9,12 @@ def scorify(S: np.ndarray, seed_list: List[int]) -> np.ndarray:
 
     Args:
     ----
-    S: nxn score matrix.
-    seed_list: List of nodes that are seeds.
+        S: nxn score matrix.
+        seed_list: List of nodes that are seeds.
 
-    Return:
-    ------
-    Score for each node in the graph, which is the sum of scores to each seed node.
+    Returns:
+    -------
+        Score for each node in the graph, which is the sum of scores to each seed node.
 
     """
     return S[:, seed_list].sum(axis=1)
@@ -25,12 +25,12 @@ def seed_list_to_mask(seed_list: List[int], n: int) -> np.ndarray:
 
     Args:
     ----
-    seed_list: List of nodes that are seeds.
-    n: Number of entries in the returned array.
+        seed_list: List of nodes that are seeds.
+        n: Number of entries in the returned array.
 
-    Return:
-    ------
-    Array with 1s at seed indices.
+    Returns:
+    -------
+        Array with 1s at seed indices.
 
     """
     train_seed_mask = np.zeros(n, dtype=int)
@@ -64,17 +64,18 @@ def inv_code_dict(code_dict: Dict[int, int]) -> Dict[int, int]:
 
     Args:
     ----
-    code_dict: A dictionary mapping node indices to gene ids.
+        code_dict: A dictionary mapping node indices to gene ids.
 
-    Return:
-    ------
-    Dictionary mapping gene ides to node indices.
+    Returns:
+    -------
+        Dictionary mapping gene ides to node indices.
 
     """
     return {v: k for k, v in code_dict.items()}
 
 
 def sub_density(G: "nx.Graph", seed_list: List) -> float:
+    """Calculate the density of the subgraph induced by seed_list nodes."""
     return nx.density(G.subgraph(seed_list))
 
 
@@ -102,9 +103,9 @@ def const_seed_diagonals(G: "nx.Graph", seeds: np.ndarray, val: float) -> np.nda
 
     Args:
     ----
-    G: The ppi network.
-    seeds: Nodes corresponding to seeds.
-    val: The constant value to set for the diagoanls.
+        G: The ppi network.
+        seeds: Nodes corresponding to seeds.
+        val: The constant value to set for the diagoanls.
 
     """
     diag = np.zeros(G.number_of_nodes())
