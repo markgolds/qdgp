@@ -1,14 +1,11 @@
 from pathlib import Path
-from typing import TYPE_CHECKING
 
 import matplotlib.pyplot as plt
+import pandas as pd
 import seaborn as sns
 
-if TYPE_CHECKING:
-    import pandas as pd
 
-
-def plot_white(df: "pd.DataFrame", title: str, path: str = "plots") -> None:
+def plot_white(df: pd.DataFrame, title: str, path: str = "plots") -> None:
     """Plot the dataframe results using white background."""
     if not Path(path).exists():
         Path(path).mkdir(parents=True, exist_ok=True)
