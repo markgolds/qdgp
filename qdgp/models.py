@@ -158,10 +158,10 @@ def neighborhood_score(G: nx.Graph, seed_list: List, A: np.ndarray) -> np.ndarra
     Args:
     ----
         G: Graph to use.
-        seed_list: List of nodes that are seeds.
+        seed_list: List of seed nodes.
         A: Dense adjacency of G.
 
-    Reutrn:
+    Returns:
     -------
         Scores for each node in G.
 
