@@ -86,11 +86,10 @@ def build_graph_wl(
     """
     wl_df = pd.read_csv(
         f"{data_dir}/PPI202207.txt",
-        delim_whitespace=True,
+        sep=r"\s+",
         skiprows=[237433 - 1],  # header on this row
         header=None,
-        usecols=[0, 2],
-        dtype=int,
+        dtype={0: int, 1: str, 2: int, 3: str},
     )
     wl_df = wl_df[[0, 2]]
     wl_df.columns = ["source", "target"]
