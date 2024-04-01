@@ -93,7 +93,7 @@ def build_graph_wl(
     )
     wl_df = wl_df[[0, 2]]
     wl_df.columns = ["source", "target"]
-    G, code_dict = _build_graph(wl_df, filter_method)
+    G, code_dict = _build_graph(pd.DataFrame(wl_df), filter_method)
     return G, code_dict
 
 
@@ -203,7 +203,8 @@ def process_diseases_gmb(
                     logger.info("%s skipped. %s not present in graph.", disease, gid)
     df_data = pd.DataFrame(df_rows)
     df_data.columns = ["disease", "gene"]
-    return df_data[df_data.groupby("disease")["disease"].transform("size").ge(15)]
+    res = df_data[df_data.groupby("disease")["disease"].transform("size").ge(15)]
+    return pd.DataFrame(res)
 
 
 def code_mapper(

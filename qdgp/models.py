@@ -42,6 +42,9 @@ def qrw_score(
 ) -> np.ndarray:
     """Score nodes based on quantum walk.
 
+    If no probability transition matrix is provided (P=None), then it will be computed
+    on the fly, using sparse matrix exponentiation based on the seeds.
+
     Args:
     ----
         G: Graph upon which to walk.
@@ -152,8 +155,8 @@ def crw_score(
     return ut.scorify(S, seed_list)
 
 
-def neighborhood_score(G: nx.Graph, seed_list: List, A: np.ndarray) -> np.ndarray:
-    """Calculate node scores using weighted neighbors.
+def neighbourhood_score(G: nx.Graph, seed_list: List, A: np.ndarray) -> np.ndarray:
+    """Calculate node scores using weighted neighbours.
 
     Args:
     ----
@@ -168,9 +171,9 @@ def neighborhood_score(G: nx.Graph, seed_list: List, A: np.ndarray) -> np.ndarra
     """
     n = G.number_of_nodes()
     train_seed_mask = ut.seed_list_to_mask(seed_list, n)
-    num_seed_neighbors = np.dot(A, train_seed_mask)
+    num_seed_neighbours = np.dot(A, train_seed_mask)
     degrees = np.sum(A, axis=1)
-    scores = num_seed_neighbors / (degrees + 1e-50)
+    scores = num_seed_neighbours / (degrees + 1e-50)
     return scores * (1 - train_seed_mask)
 
 

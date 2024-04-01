@@ -75,7 +75,7 @@ def main() -> None:
         md.crw_score,
         md.diamond_score,
         md.rwr_score,
-        md.neighborhood_score,
+        md.neighbourhood_score,
     ]
 
     m_names = ["QA", "DK", "Dia", "RWR", "NBR"]

@@ -1,5 +1,6 @@
 import logging
 from functools import wraps
+from pathlib import Path
 from time import time
 from typing import Callable, Dict
 
@@ -17,8 +18,11 @@ def timing(f: Callable) -> Callable:
         ts = time()
         _ = f(*args, **kw)
         te = time()
-        # print("func:%r args:[%r, %r] took: %2.4f sec" % (f.__name__, args, kw, te - ts))
-        print("func:%r took: %2.4f sec" % (f.__name__, te - ts))
+        # print("func:%r took: %2.4f sec" % (f.__name__, te - ts))
+        f_name = f.__name__
+        diff = te - ts
+        print(f"Function:{f_name} took: {diff:2.4} seconds.")
+        logger.info("Function %s took: %2.4f seconds.", f_name, diff)
 
     return wrap
 
@@ -38,7 +42,7 @@ def benchmark_qa_sparse(G, nl, diseases, seeds_by_disease) -> None:
     A = nx.adjacency_matrix(G, nodelist=nl)
     for disease in diseases:
         seeds = seeds_by_disease[disease]
-        md.qrw_score(G, seeds, H=A, t=0.45, diag=5)
+        md.qrw_score(G, seeds, H=A, t=0.45, diag=5, P=None)
 
 
 @timing
@@ -74,22 +78,35 @@ def benchmark_nei(G, nl, diseases, seeds_by_disease) -> None:
     A_d = A.toarray()
     for disease in diseases:
         seeds = seeds_by_disease[disease]
-        md.neighborhood_score(G, seeds, A=A_d)
+        md.neighbourhood_score(G, seeds, A=A_d)
 
 
 def main() -> None:
-    G, code_dict, seeds_by_disease = dt.load_dataset("gmb", "gmb", gcc=True)
+    G, code_dict, seeds_by_disease = dt.load_dataset("gmb", "string", dt.FilterGCC.TRUE)
+    # G, code_dict, seeds_by_disease = dt.load_dataset("dgn", "hprd", dt.FilterGCC.TRUE)
     diseases = list(seeds_by_disease.keys())
+
+    diseases = ["aneurysm"]  # small
+    diseases = ["multiple sclerosis"]  # big
+
     n = G.number_of_nodes()
     nl = range(n)
 
-    # benchmark_qa(G, nl, diseases, seeds_by_disease)
-    benchmark_qa_sparse(G, nl, diseases, seeds_by_disease)
-    benchmark_crw_sparse(G, nl, diseases, seeds_by_disease)
-    benchmark_rwr(G, nl, diseases, seeds_by_disease)
-    benchmark_dia(G, nl, diseases, seeds_by_disease)
     benchmark_nei(G, nl, diseases, seeds_by_disease)
+    benchmark_dia(G, nl, diseases, seeds_by_disease)
+    benchmark_rwr(G, nl, diseases, seeds_by_disease)
+    benchmark_crw_sparse(G, nl, diseases, seeds_by_disease)
+    benchmark_qa_sparse(G, nl, diseases, seeds_by_disease)
+    # benchmark_qa(G, nl, diseases, seeds_by_disease)
 
 
 if __name__ == "__main__":
+    if not Path("logs").exists():
+        Path("logs").mkdir(parents=True, exist_ok=True)
+    logging.basicConfig(
+        filename="logs/benchmark.log",
+        filemode="w",
+        level=logging.INFO,
+    )
+    print("Starting benchmark.")
     main()
