@@ -121,7 +121,7 @@ def build_graph_gmb(
     gmb_df.columns = [s.strip() for s in gmb_df.columns]
     gmb_df = gmb_df[["gene_ID_1", "gene_ID_2"]]
     gmb_df.columns = ["source", "target"]
-    G, code_dict = _build_graph(gmb_df, filter_method)
+    G, code_dict = _build_graph(pd.DataFrame(gmb_df), filter_method)
     return G, code_dict
 
 
@@ -281,7 +281,7 @@ def process_diseases_dgn(
     """
     dgn_df = pd.read_csv(
         f"{data_dir}/DisGenet_all.csv",
-        delimiter=",",
+        sep=",",
         usecols=["score", "geneId", "diseaseName", "type", "EL", "EI", "source", "DSI"],
     )
 
@@ -324,8 +324,8 @@ def get_disease_nodes(
 
 
 def load_dataset(
-    disease_set: str,  # VALID_DATASETS = "gmb",
-    network: str,  # VALID_NETWORKS = "biogrid",
+    disease_set: VALID_DATASETS,
+    network: VALID_NETWORKS,
     filter_method: FilterGCC,
 ) -> Tuple[nx.Graph, Dict[int, int], Dict[str, List[int]]]:
     """Build network and disease data from raw files.

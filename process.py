@@ -17,7 +17,7 @@ def parse_args() -> Dict:
     parser.add_argument("-n", "--network", type=str, default="menche")
     parser.add_argument("-d", "--disease_set", type=str, default="menche")
     parser.add_argument("-t", "--title", type=str, default="")
-    parser.add_argument("-s", "--split_ratio", type=float, default=0.5)
+    parser.add_argument("-s", "--split_ratio", type=str, default="0.500")
     args = parser.parse_args()
     return {
         "network": args.network,
@@ -34,6 +34,7 @@ def main() -> None:
     disease_set = params["disease_set"].lower()
     split_ratio = params["split_ratio"]
     path = Path(f"out/{disease_set}/{network}/{split_ratio}")
+    print(path)
     files = "*.csv"
     dfs = []
     for fname in path.glob(files):

@@ -1,16 +1,21 @@
 import argparse
 import logging
+import warnings
 from pathlib import Path
 from typing import Dict
 
 import networkx as nx
 import pandas as pd
+from scipy.sparse import SparseEfficiencyWarning
+from scipy.sparse.linalg import expm
 
 import qdgp.data as dt
 import qdgp.evaluate as ev
 import qdgp.models as md
 
 logger = logging.getLogger(__name__)
+
+warnings.filterwarnings("ignore", category=SparseEfficiencyWarning)
 
 
 def parse_args() -> Dict:
@@ -54,7 +59,7 @@ def main() -> None:
     diseases = list(seeds_by_disease.keys())
 
     # ------------------------------
-    diseases = [diseases[0]]
+    # diseases = [diseases[0]]
     # ------------------------------
 
     # Pre-compute basic matrices:
@@ -63,8 +68,9 @@ def main() -> None:
     L = nx.laplacian_matrix(G, nodelist=nl)
     A = nx.adjacency_matrix(G, nodelist=nl)
     A_d = A.toarray()
-    QP = md.qrw(H=A_d, t=0.45)
-    CP = md.crw(L=L.toarray(), t=0.3)
+    # QP = md.qrw(H=A_d, t=0.45)
+    # CP = md.crw(L=L.toarray(), t=0.3)
+    CP = expm(-0.3 * L.toarray())
 
     R = md.normalize_adjacency(G, A_d)
 
@@ -80,7 +86,7 @@ def main() -> None:
 
     m_names = ["QA", "DK", "Dia", "RWR", "NBR"]
     kws = [
-        {"t": 0.45, "H": A_d, "diag": 5, "P": QP},
+        {"t": 0.45, "H": A, "diag": 5},
         {"t": 0.3, "L": L, "P": CP},
         {"alpha": 9, "number_to_rank": TOP_N, "A": A_d},
         {"return_prob": 0.4, "normalized_adjacency": R},
@@ -90,7 +96,7 @@ def main() -> None:
     if len(models) != len(m_names):
         e = "len(models) != len(m_names)"
         raise ValueError(e)
-    if len(models) == len(kws):
+    if len(models) != len(kws):
         e = "len(models) == len(kws)"
         raise ValueError(e)
 

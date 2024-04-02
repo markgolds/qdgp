@@ -45,7 +45,7 @@ def hit_results(
     train_seed_mask = ut.seed_list_to_mask(train_seeds, n)
     test_mask = (1 - train_seed_mask).astype(bool)
     logger.info("Training...")
-    scores = method(G, train_seeds, **kwargs)
+    scores = method(G=G, seed_list=train_seeds, **kwargs)
     logger.info("Done.")
     scores = scores[test_mask]  # discard scores of the train nodes
     y_true = ut.seed_list_to_mask(
@@ -105,7 +105,7 @@ def run_models(
 
     Returns:
     -------
-        rows: List of result values.
+        List of result values.
 
     """
     # shuffle node list to break ties among scores

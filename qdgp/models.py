@@ -3,7 +3,6 @@ from typing import List, Optional, Union
 
 import networkx as nx
 import numpy as np
-import torch
 from scipy.sparse import csr_matrix
 from scipy.sparse.linalg import expm_multiply
 from scipy.stats import hypergeom
@@ -13,73 +12,23 @@ import qdgp.utils as ut
 logger = logging.getLogger(__name__)
 
 
-def qrw(H: np.ndarray, t: float = 1.0) -> np.ndarray:
-    """Get the probability transition matrix for a quantum walk on G.
-
-    Args:
-    ----
-        H: Matrix to use as Hamiltonian
-        t: Walk for time t
-
-    Returns:
-    -------
-        P: Probability transition matrix
-
-    """
-    H_ = torch.from_numpy(H)
-    P = torch.matrix_exp(-1j * t * H_)
-    P = torch.abs(P) ** 2
-    return P.numpy()
-
-
 def qrw_score(
     G: nx.Graph,
     seed_list: List,
-    H: np.ndarray,
-    t: float = 1.0,
-    P: Optional[np.ndarray] = None,
-    diag: Union[float, None] = None,
-) -> np.ndarray:
-    """Score nodes based on quantum walk.
-
-    If no probability transition matrix is provided (P=None), then it will be computed
-    on the fly, using sparse matrix exponentiation based on the seeds.
-
-    Args:
-    ----
-        G: Graph upon which to walk.
-        seed_list: List of nodes that are seeds.
-        H: Matrix to use as Hamiltonian.
-        t: Walk for time t.
-        P: Probability transition matrix, if pre-computed.
-        diag: How to set diagoanls of the Hamiltonian.
-
-    Returns:
-    -------
-        Score for each node in G.
-
-    """
-    if P is None:
-        return _sparse_qrw_score(G, t, np.array(seed_list), H, diag)
-    S = P
-    return ut.scorify(S, seed_list)
-
-
-def _sparse_qrw_score(
-    G: nx.Graph,
     t: float,
-    seeds: np.ndarray,
-    H: np.ndarray,
+    H: csr_matrix,
     diag: Union[float, None] = None,
 ) -> np.ndarray:
     """Calculate quantum walk scores if transition matrix is not pre-computed.
 
+    This method will be faster than qrw_score if only computing scores for
+    a few diseases.
+
     Args:
     ----
         G: Graph that the walk occures on.
+        seed_list: List of seed nodes.
         t: Time for which the walk lasts.
-        seeds: Seed nodes.
-        train_seed_mask: 0/1 array of false/true test nodes.
         H: Matrix to use as Hamiltonian.
         diag: How to set diagoanls of the Hamiltonian.
 
@@ -89,38 +38,18 @@ def _sparse_qrw_score(
 
     """
     n = G.number_of_nodes()
-    d = np.zeros((n, n))
+    n_seeds = len(seed_list)
     if isinstance(diag, (float, int)):
-        d = ut.const_seed_diagonals(G, seeds, diag)
-    H_sparse = csr_matrix(H + d)
-    z = np.zeros(n, dtype=int)
-    scores = np.zeros(n)
-    # Trick for doing "quatum expm_multiply":
-    for idx in seeds:
-        z[idx] = 1
-        res = expm_multiply(-1j * t * H_sparse, z)
-        res = np.abs(res) ** 2
-        scores += res
-        z[idx] = 0
-    return scores
-
-
-def crw(L: np.ndarray, t: float = 1.0) -> np.ndarray:
-    """Get the probability transition matrix for a classical walk on G.
-
-    Args:
-    ----
-        L: Laplacian of G.
-        t: Walk for time t.
-
-    Returns:
-    -------
-        P: Probability transition matrix
-
-    """
-    L_ = torch.from_numpy(L)
-    P = torch.matrix_exp(-1 * t * L_)
-    return P.numpy()
+        # Construct sparse matrix representation of nxn matrix, with values `diag`
+        # at entry (seed, seed), for each seed in seed_list:
+        D = csr_matrix(([diag] * n_seeds, (seed_list, seed_list)), shape=(n, n))
+        H += D
+    # Trick for doing "quantum expm_multiply":
+    Z = np.zeros((n, n_seeds), dtype=int)
+    Z[seed_list, np.arange(n_seeds)] = 1  # each column corresponds to a seed
+    res = expm_multiply(-1j * t * H, Z)
+    res = np.abs(res) ** 2
+    return res.sum(axis=1)
 
 
 def crw_score(
@@ -131,6 +60,10 @@ def crw_score(
     P: Optional[np.ndarray] = None,
 ) -> np.ndarray:
     """Score nodes based on classical walk.
+
+    If the probability transition matrix P is pre-computed, use it.
+    Otherwise, the Laplacian L will be used to perform the exponential matrix action
+    on the seeds.
 
     Args:
     ----
@@ -151,8 +84,7 @@ def crw_score(
             raise ValueError(e)
         train_seed_mask = ut.seed_list_to_mask(seed_list, G.number_of_nodes())
         return expm_multiply(-t * L, train_seed_mask)
-    S = P
-    return ut.scorify(S, seed_list)
+    return ut.scorify(P, seed_list)
 
 
 def neighbourhood_score(G: nx.Graph, seed_list: List, A: np.ndarray) -> np.ndarray:

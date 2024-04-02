@@ -5,6 +5,7 @@ from time import time
 from typing import Callable, Dict
 
 import networkx as nx
+import pandas as pd
 
 import qdgp.data as dt
 import qdgp.models as md
@@ -14,15 +15,14 @@ logger = logging.getLogger(__name__)
 
 def timing(f: Callable) -> Callable:
     @wraps(f)
-    def wrap(*args: Dict, **kw: Dict) -> None:
+    def wrap(*args: Dict, **kw: Dict) -> float:
         ts = time()
         _ = f(*args, **kw)
         te = time()
-        # print("func:%r took: %2.4f sec" % (f.__name__, te - ts))
         f_name = f.__name__
         diff = te - ts
-        print(f"Function:{f_name} took: {diff:2.4} seconds.")
         logger.info("Function %s took: %2.4f seconds.", f_name, diff)
+        return diff
 
     return wrap
 
@@ -30,23 +30,13 @@ def timing(f: Callable) -> Callable:
 @timing
 def benchmark_qa(G, nl, diseases, seeds_by_disease) -> None:
     A = nx.adjacency_matrix(G, nodelist=nl)
-    A_d = A.toarray()
-    QP = md.qrw(H=A_d, t=0.45)
     for disease in diseases:
         seeds = seeds_by_disease[disease]
-        md.qrw_score(G, seeds, H=A_d, t=0.45, diag=5, P=QP)
+        md.qrw_score(G, seeds, t=0.45, H=A, diag=None)
 
 
 @timing
-def benchmark_qa_sparse(G, nl, diseases, seeds_by_disease) -> None:
-    A = nx.adjacency_matrix(G, nodelist=nl)
-    for disease in diseases:
-        seeds = seeds_by_disease[disease]
-        md.qrw_score(G, seeds, H=A, t=0.45, diag=5, P=None)
-
-
-@timing
-def benchmark_crw_sparse(G, nl, diseases, seeds_by_disease) -> None:
+def benchmark_crw(G, nl, diseases, seeds_by_disease) -> None:
     L = nx.laplacian_matrix(G, nodelist=nl)
     for disease in diseases:
         seeds = seeds_by_disease[disease]
@@ -69,7 +59,7 @@ def benchmark_dia(G, nl, diseases, seeds_by_disease) -> None:
     A_d = A.toarray()
     for disease in diseases:
         seeds = seeds_by_disease[disease]
-        md.diamond_score(G, seeds, A=A_d, alpha=9, number_to_rank=500)
+        md.diamond_score(G, seeds, A=A_d, alpha=9, number_to_rank=100)
 
 
 @timing
@@ -82,22 +72,26 @@ def benchmark_nei(G, nl, diseases, seeds_by_disease) -> None:
 
 
 def main() -> None:
-    G, code_dict, seeds_by_disease = dt.load_dataset("gmb", "string", dt.FilterGCC.TRUE)
-    # G, code_dict, seeds_by_disease = dt.load_dataset("dgn", "hprd", dt.FilterGCC.TRUE)
+    G, code_dict, seeds_by_disease = dt.load_dataset("gmb", "hprd", dt.FilterGCC.TRUE)
     diseases = list(seeds_by_disease.keys())
-
-    diseases = ["aneurysm"]  # small
-    diseases = ["multiple sclerosis"]  # big
 
     n = G.number_of_nodes()
     nl = range(n)
+    n_runs = 1
+    rows = []
+    funcs = [benchmark_nei, benchmark_dia, benchmark_crw, benchmark_rwr, benchmark_qa]
+    for run in range(n_runs):
+        for dis in diseases:
+            for f in funcs:
+                res = f(G, nl, [dis], seeds_by_disease)
+                rows.append([f.__name__, dis, len(seeds_by_disease[dis]), res, run])
+                print(res)
 
-    benchmark_nei(G, nl, diseases, seeds_by_disease)
-    benchmark_dia(G, nl, diseases, seeds_by_disease)
-    benchmark_rwr(G, nl, diseases, seeds_by_disease)
-    benchmark_crw_sparse(G, nl, diseases, seeds_by_disease)
-    benchmark_qa_sparse(G, nl, diseases, seeds_by_disease)
-    # benchmark_qa(G, nl, diseases, seeds_by_disease)
+    res_df = pd.DataFrame(
+        rows, columns=["Method", "Disease", "Num_seeds", "Time", "Run"]
+    )
+    print(res_df)
+    res_df.to_csv("benchmark.csv")
 
 
 if __name__ == "__main__":

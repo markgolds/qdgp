@@ -2,6 +2,7 @@ from typing import Dict, List
 
 import networkx as nx
 import numpy as np
+from scipy.sparse import csr_matrix
 
 
 def scorify(S: np.ndarray, seed_list: List[int]) -> np.ndarray:
@@ -108,7 +109,9 @@ def const_seed_diagonals(G: "nx.Graph", seeds: np.ndarray, val: float) -> np.nda
         val: The constant value to set for the diagoanls.
 
     """
-    diag = np.zeros(G.number_of_nodes())
+    # diag = np.zeros(G.number_of_nodes())
+    diag = csr_matrix((1, G.number_of_nodes()), dtype=np.float64)
     for s in seeds:
-        diag[s] = val
-    return np.diag(diag)
+        diag[0, s] = val
+    # return np.diag(diag)
+    return diag
