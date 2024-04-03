@@ -245,7 +245,7 @@ def process_diseases_ot(
 
     """
     ot_df = pd.read_csv(
-        f"{data_dir}/OpenTargetsIDs.csv",
+        f"{data_dir}/OpenTargetsIDs_filtered.csv",
         delimiter=",",
     )
     ot_df = ot_df.drop_duplicates()
@@ -280,7 +280,7 @@ def process_diseases_dgn(
 
     """
     dgn_df = pd.read_csv(
-        f"{data_dir}/DisGenet_all.csv",
+        f"{data_dir}/DisGenet_all_filtered.csv",
         sep=",",
         usecols=["score", "geneId", "diseaseName", "type", "EL", "EI", "source", "DSI"],
     )
