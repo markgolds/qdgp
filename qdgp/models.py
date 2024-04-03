@@ -55,8 +55,8 @@ def qrw_score(
 def crw_score(
     G: nx.Graph,
     seed_list: List,
+    t: float,
     L: Optional[csr_matrix] = None,
-    t: float = 1.0,
     P: Optional[np.ndarray] = None,
 ) -> np.ndarray:
     """Score nodes based on classical walk.

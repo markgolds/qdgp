@@ -58,18 +58,12 @@ def main() -> None:
     logger.info(list(seeds_by_disease.keys()))
     diseases = list(seeds_by_disease.keys())
 
-    # ------------------------------
-    # diseases = [diseases[0]]
-    # ------------------------------
-
     # Pre-compute basic matrices:
     n = G.number_of_nodes()
     nl = range(n)
     L = nx.laplacian_matrix(G, nodelist=nl)
     A = nx.adjacency_matrix(G, nodelist=nl)
     A_d = A.toarray()
-    # QP = md.qrw(H=A_d, t=0.45)
-    # CP = md.crw(L=L.toarray(), t=0.3)
     CP = expm(-0.3 * L.toarray())
 
     R = md.normalize_adjacency(G, A_d)
@@ -87,7 +81,7 @@ def main() -> None:
     m_names = ["QA", "DK", "Dia", "RWR", "NBR"]
     kws = [
         {"t": 0.45, "H": A, "diag": 5},
-        {"t": 0.3, "L": L, "P": CP},
+        {"P": CP},
         {"alpha": 9, "number_to_rank": TOP_N, "A": A_d},
         {"return_prob": 0.4, "normalized_adjacency": R},
         {"A": A_d},

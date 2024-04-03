@@ -72,12 +72,12 @@ def benchmark_nei(G, nl, diseases, seeds_by_disease) -> None:
 
 
 def main() -> None:
-    G, code_dict, seeds_by_disease = dt.load_dataset("gmb", "hprd", dt.FilterGCC.TRUE)
+    G, code_dict, seeds_by_disease = dt.load_dataset("gmb", "gmb", dt.FilterGCC.TRUE)
     diseases = list(seeds_by_disease.keys())
 
     n = G.number_of_nodes()
     nl = range(n)
-    n_runs = 1
+    n_runs = 2
     rows = []
     funcs = [benchmark_nei, benchmark_dia, benchmark_crw, benchmark_rwr, benchmark_qa]
     for run in range(n_runs):
@@ -85,7 +85,7 @@ def main() -> None:
             for f in funcs:
                 res = f(G, nl, [dis], seeds_by_disease)
                 rows.append([f.__name__, dis, len(seeds_by_disease[dis]), res, run])
-                print(res)
+                print([f.__name__, dis[:4], len(seeds_by_disease[dis]), res, run])
 
     res_df = pd.DataFrame(
         rows, columns=["Method", "Disease", "Num_seeds", "Time", "Run"]
