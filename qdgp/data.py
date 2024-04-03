@@ -185,7 +185,6 @@ def process_diseases_gmb(
 
     """
     df_rows = []
-    # with open(f"{data_dir}/menche/pcbi.1004120.s004.tsv", newline="") as csvfile:
     with Path(f"{data_dir}/gmb/pcbi.1004120.s004.tsv").open(newline="") as csvfile:
         reader = csv.reader(csvfile, delimiter=" ")
         next(reader, None)  # skip the headers
@@ -205,25 +204,6 @@ def process_diseases_gmb(
     df_data.columns = ["disease", "gene"]
     res = df_data[df_data.groupby("disease")["disease"].transform("size").ge(15)]
     return pd.DataFrame(res)
-
-
-def code_mapper(
-    row: pd.Series,
-    code_dict: Dict[int, int],
-    col_name: str,
-) -> Optional[int]:
-    """Apply code_dict to row of DataFrame to change entry in col_name.
-
-    Args:
-    ----
-    row: Row object from the DataFrame
-    code_dict: Dictionary that maps original gene names to node ids
-    col_name: Name of the column holding the data
-
-    """
-    if int(row[col_name]) in code_dict:
-        return code_dict[int(row[col_name])]
-    return None
 
 
 def process_diseases_ot(
@@ -249,8 +229,6 @@ def process_diseases_ot(
         delimiter=",",
     )
     ot_df = ot_df.drop_duplicates()
-    threshold = 0.6
-    ot_df = ot_df[ot_df.score >= threshold]
     ot_df = ot_df[["id", "Disease_Name"]]
     ot_df = ot_df.dropna()
     ot_df.columns = ["gene", "disease"]
@@ -287,8 +265,6 @@ def process_diseases_dgn(
 
     dgn_df = dgn_df.drop_duplicates()
     dgn_df = dgn_df[(dgn_df.type == "disease")]
-    dgn_df = dgn_df[dgn_df.score >= 0.3]
-    dgn_df = dgn_df[dgn_df.DSI >= 0.5]
     dgn_df = dgn_df[["geneId", "diseaseName"]]
     dgn_df = dgn_df.dropna()
     dgn_df.columns = ["gene", "disease"]
@@ -301,6 +277,25 @@ def process_diseases_dgn(
     dgn_df = dgn_df.drop_duplicates()
     # Keep only diseases ith at least 15 seeds
     return dgn_df[dgn_df.groupby("disease")["disease"].transform("size").ge(15)]
+
+
+def code_mapper(
+    row: pd.Series,
+    code_dict: Dict[int, int],
+    col_name: str,
+) -> Optional[int]:
+    """Apply code_dict to row of DataFrame to change entry in col_name.
+
+    Args:
+    ----
+    row: Row object from the DataFrame
+    code_dict: Dictionary that maps original gene names to node ids
+    col_name: Name of the column holding the data
+
+    """
+    if int(row[col_name]) in code_dict:
+        return code_dict[int(row[col_name])]
+    return None
 
 
 def get_disease_nodes(
@@ -383,7 +378,6 @@ def load_dataset(
         data_dir,
         func,
     )
-
     return G, code_dict, disease_nodes_by_disease
 
 

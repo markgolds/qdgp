@@ -55,7 +55,7 @@ def qrw_score(
 def crw_score(
     G: nx.Graph,
     seed_list: List,
-    t: float,
+    t: Optional[float] = None,
     L: Optional[csr_matrix] = None,
     P: Optional[np.ndarray] = None,
 ) -> np.ndarray:
@@ -79,8 +79,8 @@ def crw_score(
 
     """
     if P is None:
-        if L is None:
-            e = "One of L or P must not be None"
+        if L is None or t is None:
+            e = "One of L and t  must not be provided if P is None."
             raise ValueError(e)
         train_seed_mask = ut.seed_list_to_mask(seed_list, G.number_of_nodes())
         return expm_multiply(-t * L, train_seed_mask)
