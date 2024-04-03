@@ -16,13 +16,11 @@ def parse_args() -> Dict:
     parser = argparse.ArgumentParser(description="Plot results from parallel runs.")
     parser.add_argument("-n", "--network", type=str, default="menche")
     parser.add_argument("-d", "--disease_set", type=str, default="menche")
-    parser.add_argument("-t", "--title", type=str, default="")
     parser.add_argument("-s", "--split_ratio", type=str, default="0.500")
     args = parser.parse_args()
     return {
         "network": args.network,
         "disease_set": args.disease_set,
-        "title": args.title,
         "split_ratio": args.split_ratio,
     }
 
@@ -30,8 +28,8 @@ def parse_args() -> Dict:
 def main() -> None:
     params = parse_args()
     network = params["network"].lower()
-    plot_title = params["title"]
     disease_set = params["disease_set"].lower()
+    plot_title = f"{disease_set.upper()} | {network.upper()}"
     split_ratio = params["split_ratio"]
     path = Path(f"out/{disease_set}/{network}/{split_ratio}")
     print(path)

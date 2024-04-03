@@ -69,14 +69,14 @@ def _build_graph(
 
 
 def build_graph_wl(
-    data_dir: str,
+    data_path: Path,
     filter_method: FilterGCC,
 ) -> Tuple[nx.Graph, Dict[int, int]]:
     """Read csv file and convert it to a networkx graph.
 
     Args:
     ----
-    data_dir: path to data file.
+    data_path: Path to data directory.
     filter_method: How to filter the ppi network.
 
     Returns:
@@ -85,7 +85,7 @@ def build_graph_wl(
 
     """
     wl_df = pd.read_csv(
-        f"{data_dir}/PPI202207.txt",
+        data_path / "PPI202207.txt",
         sep=r"\s+",
         skiprows=[237433 - 1],  # header on this row
         header=None,
@@ -98,14 +98,14 @@ def build_graph_wl(
 
 
 def build_graph_gmb(
-    data_dir: str,
+    data_path: Path,
     filter_method: FilterGCC,
 ) -> Tuple[nx.Graph, Dict[int, int]]:
     """Read csv file and convert it to a networkx graph.
 
     Args:
     ----
-    data_dir: path to data file.
+    data_path: Path to data directory.
     filter_method: Use whole graph (False) or only giant component (True).
 
     Returns:
@@ -114,7 +114,7 @@ def build_graph_gmb(
 
     """
     gmb_df = pd.read_csv(
-        f"{data_dir}/gmb/pcbi.1004120.s003.tsv",
+        data_path / "gmb/pcbi.1004120.s003.tsv",
         delimiter="\t",
         dtype={"gene_ID_1": int, "gene_ID_2": int},
     )
@@ -126,7 +126,7 @@ def build_graph_gmb(
 
 
 def build_graph_loami(
-    data_dir: str,
+    data_path: Path,
     network: str,
     filter_method: FilterGCC,
 ) -> Tuple[nx.Graph, Dict[int, int]]:
@@ -134,8 +134,8 @@ def build_graph_loami(
 
     Args:
     ----
-    data_dir: path to data file.
-    network: name of ppi network.
+    data_path: Path to data directory.
+    network: Name of ppi network.
     filter_method: How to filter the ppi network.
 
     Returns:
@@ -147,15 +147,15 @@ def build_graph_loami(
         e = f"{network} not recognized. Must be one of {_valid_networks}"
         raise ValueError(e)
     if network == "string":
-        G = nx.read_graphml(f"{data_dir}/loami/STRING.graphml")
+        G = nx.read_graphml(data_path / "loami/STRING.graphml")
     elif network == "iid":
-        G = nx.read_graphml(f"{data_dir}/loami/IID.graphml")
+        G = nx.read_graphml(data_path / "loami/IID.graphml")
     elif network == "apid":
-        G = nx.read_graphml(f"{data_dir}/loami/APID.graphml")
+        G = nx.read_graphml(data_path / "loami/APID.graphml")
     elif network == "hprd":
-        G = nx.read_graphml(f"{data_dir}/loami/HPRD.graphml")
+        G = nx.read_graphml(data_path / "loami/HPRD.graphml")
     else:
-        G = nx.read_graphml(f"{data_dir}/loami/BIOGRID.graphml")
+        G = nx.read_graphml(data_path / "loami/BIOGRID.graphml")
     if filter_method == FilterGCC.TRUE:
         Gcc = sorted(nx.connected_components(G), key=len, reverse=True)
         G = G.subgraph(Gcc[0])
@@ -169,15 +169,15 @@ def build_graph_loami(
 def process_diseases_gmb(
     node_list: List[int],
     code_dict: Dict[int, int],
-    data_dir: str,
+    data_path: Path,
 ) -> pd.DataFrame:
     """Read disease file and return a dataframe associating diseases and gene nodes.
 
     Args:
     ----
-    node_list: list of nodes from the graph.
-    code_dict: dictionary mapping gene ids to node labels.
-    data_dir: string reprsenting data path.
+    node_list: List of nodes from the graph.
+    code_dict: Dictionary mapping gene ids to node labels.
+    data_path: Path to the data directory
 
     Returns:
     -------
@@ -185,7 +185,7 @@ def process_diseases_gmb(
 
     """
     df_rows = []
-    with Path(f"{data_dir}/gmb/pcbi.1004120.s004.tsv").open(newline="") as csvfile:
+    with Path(data_path / "gmb/pcbi.1004120.s004.tsv").open(newline="") as csvfile:
         reader = csv.reader(csvfile, delimiter=" ")
         next(reader, None)  # skip the headers
         for row in reader:
@@ -209,15 +209,15 @@ def process_diseases_gmb(
 def process_diseases_ot(
     node_list: List[int],
     code_dict: Dict[int, int],
-    data_dir: str,
+    data_path: Path,
 ) -> pd.DataFrame:
     """Read disease file and return a dataframe associating diseases and gene nodes.
 
     Args:
     ----
-    node_list: list of nodes from the graph, ignored in this function.
-    code_dict: dictionary mapping gene ids to node labels.
-    data_dir: string reprsenting data path.
+    node_list: List of nodes from the graph, ignored in this function.
+    code_dict: Dictionary mapping gene ids to node labels.
+    data_path: Path to the data directory.
 
     Returns:
     -------
@@ -225,7 +225,7 @@ def process_diseases_ot(
 
     """
     ot_df = pd.read_csv(
-        f"{data_dir}/OpenTargetsIDs_filtered.csv",
+        data_path / "OpenTargetsIDs_filtered.csv",
         delimiter=",",
     )
     ot_df = ot_df.drop_duplicates()
@@ -242,7 +242,7 @@ def process_diseases_ot(
 def process_diseases_dgn(
     node_list: List[int],
     code_dict: Dict[int, int],
-    data_dir: str,
+    data_path: Path,
 ) -> pd.DataFrame:
     """Read disease file and return a dataframe associating diseases and gene nodes.
 
@@ -250,7 +250,7 @@ def process_diseases_dgn(
     ----
     node_list: list of nodes from the graph, ignored in this function.
     code_dict: dictionary mapping gene ids to node labels.
-    data_dir: string reprsenting data path.
+    data_path: Path to the data directory.
 
     Returns:
     -------
@@ -258,7 +258,7 @@ def process_diseases_dgn(
 
     """
     dgn_df = pd.read_csv(
-        f"{data_dir}/DisGenet_all_filtered.csv",
+        data_path / "DisGenet_filtered.csv",
         sep=",",
         usecols=["score", "geneId", "diseaseName", "type", "EL", "EI", "source", "DSI"],
     )
@@ -301,7 +301,7 @@ def code_mapper(
 def get_disease_nodes(
     node_list: List,
     code_dict: Dict[int, int],
-    data_dir: str,
+    data_path: Path,
     method: Callable,
 ) -> Dict[str, List]:
     """Build dictionary mapping disease names to node labels.
@@ -310,11 +310,11 @@ def get_disease_nodes(
     ----
     node_list: List of nodes in the graph.
     code_dict: Maps gene ids to node ids.
-    data_dir: Path where data is stored.
+    data_path: Path where data is stored.
     method: Method for reading the desired data set.
 
     """
-    df_data = method(node_list, code_dict, data_dir)
+    df_data = method(node_list, code_dict, data_path)
     return df_data.groupby("disease")["gene"].agg(list).to_dict()
 
 
@@ -344,7 +344,7 @@ def load_dataset(
     if network not in _valid_networks:
         e = f"{network} not recognized. Must be one of {_valid_networks}"
         raise ValueError(e)
-    data_dir = "data"
+    data_path = Path("data")
 
     # Load the network:
     if network in [
@@ -355,14 +355,14 @@ def load_dataset(
         "hprd",
     ]:
         G, code_dict = build_graph_loami(
-            data_dir,
+            data_path,
             network=network,
             filter_method=filter_method,
         )
     elif network == "wl-ppi":
-        G, code_dict = build_graph_wl(data_dir, filter_method=filter_method)
+        G, code_dict = build_graph_wl(data_path, filter_method=filter_method)
     else:
-        G, code_dict = build_graph_gmb(data_dir, filter_method=filter_method)
+        G, code_dict = build_graph_gmb(data_path, filter_method=filter_method)
 
     # Load the disease set:
     if disease_set == "ot":
@@ -375,7 +375,7 @@ def load_dataset(
     disease_nodes_by_disease = get_disease_nodes(
         list(G.nodes()),
         code_dict,
-        data_dir,
+        data_path,
         func,
     )
     return G, code_dict, disease_nodes_by_disease
@@ -396,7 +396,7 @@ def get_graph(
     if network not in _valid_networks:
         e = f"{network} not recognized. Must be one of {_valid_networks}"
         raise ValueError(e)
-    data_dir = "../data"
+    data_path = Path("../data")
 
     if network in [
         "biogrid",
@@ -406,12 +406,12 @@ def get_graph(
         "hprd",
     ]:
         G, code_dict = build_graph_loami(
-            data_dir,
+            data_path,
             network=network,
             filter_method=filter_method,
         )
     elif network == "wl":
-        G, code_dict = build_graph_wl(data_dir, filter_method=filter_method)
+        G, code_dict = build_graph_wl(data_path, filter_method=filter_method)
     else:
-        G, code_dict = build_graph_gmb(data_dir, filter_method=filter_method)
+        G, code_dict = build_graph_gmb(data_path, filter_method=filter_method)
     return G
