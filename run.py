@@ -1,12 +1,10 @@
 import argparse
 import logging
-import warnings
 from pathlib import Path
 from typing import Dict
 
 import networkx as nx
 import pandas as pd
-from scipy.sparse import SparseEfficiencyWarning
 from scipy.sparse.linalg import expm
 
 import qdgp.data as dt
@@ -14,8 +12,6 @@ import qdgp.evaluate as ev
 import qdgp.models as md
 
 logger = logging.getLogger(__name__)
-
-warnings.filterwarnings("ignore", category=SparseEfficiencyWarning)
 
 
 def parse_args() -> Dict:
@@ -42,7 +38,6 @@ def main() -> None:
     network = params["network"]
     disease_set = params["disease_set"]
     split_ratio = params["split_ratio"]
-
     if not Path("logs").exists():
         Path("logs").mkdir(parents=True, exist_ok=True)
     logging.basicConfig(
@@ -51,9 +46,11 @@ def main() -> None:
         level=logging.INFO,
     )
     logging.info(params)
-    gcc_filt = dt.FilterGCC.TRUE
-    G, code_dict, seeds_by_disease = dt.load_dataset(disease_set, network, gcc_filt)
-
+    G, code_dict, seeds_by_disease = dt.load_dataset(
+        disease_set,
+        network,
+        filter_method=dt.FilterGCC.TRUE,
+    )
     logger.info("(%d, %d) (nodes, edges).", G.number_of_nodes(), G.number_of_edges())
     logger.info(list(seeds_by_disease.keys()))
     diseases = list(seeds_by_disease.keys())

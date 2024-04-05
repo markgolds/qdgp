@@ -1,4 +1,4 @@
-"""Handle graph and disease loading."""
+"""Handle graph and disease set loading."""
 
 import csv
 import logging
@@ -27,7 +27,7 @@ _valid_networks: List[str] = list(get_args(VALID_NETWORKS))
 
 
 class FilterGCC(Flag):
-    """Controls whether or not to use only the gcc of the network."""
+    """Whether to use the full PPI network or only the greatest connected component."""
 
     TRUE = True
     FALSE = False
@@ -41,12 +41,12 @@ def _build_graph(
 
     Args:
     ----
-        g_df: Dataframe with "source" and "target" columns.
-        filter_method: Use the full network or only the greatest connected component.
+    g_df: Dataframe for the undirected graph with "source" and "target" columns.
+    filter_method: Use the full network or only the greatest connected component.
 
     Returns:
     -------
-        Networkx graph and code_dict which maps gene ids to graph nodes.
+    Networkx graph and code_dict which maps gene ids to graph nodes.
 
     """
     if filter_method == FilterGCC.TRUE:
@@ -177,11 +177,11 @@ def process_diseases_gmb(
     ----
     node_list: List of nodes from the graph.
     code_dict: Dictionary mapping gene ids to node labels.
-    data_path: Path to the data directory
+    data_path: Path to the data directory.
 
     Returns:
     -------
-    pandas dataframe with "disease" and "gene" columns.
+    Pandas dataframe with "disease" and "gene" columns.
 
     """
     df_rows = []
@@ -313,6 +313,10 @@ def get_disease_nodes(
     data_path: Path where data is stored.
     method: Method for reading the desired data set.
 
+    Returns:
+    -------
+    Dictionary mapping disease names to node labels.
+
     """
     df_data = method(node_list, code_dict, data_path)
     return df_data.groupby("disease")["gene"].agg(list).to_dict()
@@ -380,7 +384,7 @@ def load_dataset(
     )
     return G, code_dict, disease_nodes_by_disease
 
-nx.
+
 def get_graph(
     network: VALID_NETWORKS = "biogrid",
     filter_method: FilterGCC = FilterGCC.TRUE,
@@ -389,8 +393,12 @@ def get_graph(
 
     Args:
     ----
-        network: Name of the PPI network.
-        filter_method: Use the full network or only the greatest connected component.
+    network: Name of the PPI network.
+    filter_method: Use the full network or only the greatest connected component.
+
+    Returns:
+    -------
+    Undirected Networkx graph of the PPI network.
 
     """
     if network not in _valid_networks:

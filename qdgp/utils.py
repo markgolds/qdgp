@@ -1,3 +1,6 @@
+"""Helper functions."""
+
+import itertools
 from typing import Dict, List
 
 import networkx as nx
@@ -10,12 +13,12 @@ def scorify(S: np.ndarray, seed_list: List[int]) -> np.ndarray:
 
     Args:
     ----
-        S: nxn score matrix.
-        seed_list: List of nodes that are seeds.
+    S: nxn score matrix.
+    seed_list: List of nodes that are seeds.
 
     Returns:
     -------
-        Score for each node in the graph, which is the sum of scores to each seed node.
+    Score for each node in the graph, which is the sum of scores to each seed node.
 
     """
     return S[:, seed_list].sum(axis=1)
@@ -26,12 +29,12 @@ def seed_list_to_mask(seed_list: List[int], n: int) -> np.ndarray:
 
     Args:
     ----
-        seed_list: List of nodes that are seeds.
-        n: Number of entries in the returned array.
+    seed_list: List of nodes that are seeds.
+    n: Number of entries in the returned array.
 
     Returns:
     -------
-        Array with 1s at seed indices.
+    Indicator array with 1s at seed indices.
 
     """
     train_seed_mask = np.zeros(n, dtype=int)
@@ -65,11 +68,11 @@ def inv_code_dict(code_dict: Dict[int, int]) -> Dict[int, int]:
 
     Args:
     ----
-        code_dict: A dictionary mapping node indices to gene ids.
+    code_dict: A dictionary mapping node indices to gene ids.
 
     Returns:
     -------
-        Dictionary mapping gene ides to node indices.
+    Dictionary mapping gene ides to node indices.
 
     """
     return {v: k for k, v in code_dict.items()}
@@ -82,7 +85,6 @@ def sub_density(G: "nx.Graph", seed_list: List) -> float:
 
 def seed_avg_shortest_path(G: "nx.Graph", seed_list: List) -> float:
     """Compute the average shortest path, averaged over ever pair of seeds."""
-    import itertools
 
     c = 0
     d = 0
@@ -99,19 +101,21 @@ def sub_gcc(G: "nx.Graph", seed_list: List) -> int:
     return len(Gcc[0])
 
 
-def const_seed_diagonals(G: "nx.Graph", seeds: np.ndarray, val: float) -> np.ndarray:
+def const_seed_diagonals(G: "nx.Graph", seeds: np.ndarray, val: float) -> csr_matrix:
     """Set a constant value on the diagonal indices corresponding to seeds.
 
     Args:
     ----
-        G: The ppi network.
-        seeds: Nodes corresponding to seeds.
-        val: The constant value to set for the diagoanls.
+    G: The ppi network.
+    seeds: Nodes corresponding to seed genes.
+    val: The constant value to set for the diagonals.
+
+    Returns:
+    -------
+    Sparse array with `val` at indices given by `seeds`.
 
     """
-    # diag = np.zeros(G.number_of_nodes())
     diag = csr_matrix((1, G.number_of_nodes()), dtype=np.float64)
     for s in seeds:
         diag[0, s] = val
-    # return np.diag(diag)
     return diag

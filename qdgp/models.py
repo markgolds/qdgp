@@ -1,3 +1,5 @@
+"""Models and helper functions for the main method (qrw_score) and benchmark methods."""
+
 import logging
 from typing import List, Optional, Union
 
@@ -19,22 +21,19 @@ def qrw_score(
     H: csr_matrix,
     diag: Union[float, None] = None,
 ) -> np.ndarray:
-    """Calculate quantum walk scores if transition matrix is not pre-computed.
-
-    This method will be faster than qrw_score if only computing scores for
-    a few diseases.
+    """Calculate quantum walk scores.
 
     Args:
     ----
-        G: Graph that the walk occures on.
-        seed_list: List of seed nodes.
-        t: Time for which the walk lasts.
-        H: Matrix to use as Hamiltonian.
-        diag: How to set diagoanls of the Hamiltonian.
+    G: Graph that the walk occures on.
+    seed_list: List of seed nodes.
+    t: Time for which the walk lasts.
+    H: Matrix to use as Hamiltonian.
+    diag: How to set diagoanls of the Hamiltonian.
 
     Returns:
     -------
-        Score for each node in G.
+    Array containing scores for each node in G.
 
     """
     n = G.number_of_nodes()
@@ -67,15 +66,16 @@ def crw_score(
 
     Args:
     ----
-        G: Graph upon which to walk.
-        seed_list: List of seed nodes.
-        L: Laplacian of G.
-        t: Walk for time t.
-        P: Probability transition matrix, if pre-computed.
+    G: Graph upon which to walk.
+    seed_list: List of seed nodes.
+    t: Time for which the walk lasts.
+    L: Laplacian of G.
+    P: Probability transition matrix, if pre-computed.
 
     Returns:
     -------
-        Scores for each node in G.
+    Array containing scores for each node in G.
+
 
     """
     if P is None:
@@ -92,13 +92,14 @@ def neighbourhood_score(G: nx.Graph, seed_list: List, A: np.ndarray) -> np.ndarr
 
     Args:
     ----
-        G: Graph to use.
-        seed_list: List of seed nodes.
-        A: Dense adjacency of G.
+    G: Graph to use.
+    seed_list: List of seed nodes.
+    A: Dense adjacency of G.
 
     Returns:
     -------
-        Scores for each node in G.
+    Array containing scores for each node in G.
+
 
     """
     n = G.number_of_nodes()
@@ -114,12 +115,12 @@ def normalize_adjacency(G: nx.Graph, A: Optional[np.ndarray] = None) -> np.ndarr
 
     Args:
     ----
-        G: Graph to use.
-        A: Dense adjacency of G.
+    G: Graph to use.
+    A: Dense adjacency of G. Calculated on the fly if not provided.
 
     Returns:
     -------
-        The normalized adjacency matrix, defined by D^(-1/2)AD^(-1/2).
+    The normalized adjacency matrix, defined by D^(-1/2)AD^(-1/2).
 
     """
     # TODO: will break if there are isolated nodes?:
@@ -140,14 +141,14 @@ def rwr_score(
 
     Args:
     ----
-        G: Graph to use.
-        seed_list: List of nodes that are seeds.
-        return_prob: Probability of return to seed nodes.
-        normalized_adjacency: D^{-1/2} A D^{-1/2}.
+    G: Graph to use.
+    seed_list: List of nodes that are seeds.
+    return_prob: Probability of return to seed nodes.
+    normalized_adjacency: D^{-1/2} A D^{-1/2}.
 
     Returns:
     -------
-        Scores for each node in G.
+    Array containing scores for each node in G.
 
     """
     # Modified from https://github.com/mims-harvard/pathways/blob/master/prediction/randomWalk.py
@@ -190,15 +191,15 @@ def diamond_score(
 
     Args:
     ----
-        G: Graph to use.
-        seed_list: List of nodes that are seeds.
-        A: Dense adjacency of G.
-        alpha: diamond parameter.
-        number_to_rank: Score only this many nodes.
+    G: Graph to use.
+    seed_list: List of nodes that are seeds.
+    A: Dense adjacency of G.
+    alpha: diamond parameter.
+    number_to_rank: Score only this many nodes.
 
     Returns:
     -------
-        Scores for the top `number_to_rank` nodes, according to the diamond algorithm.
+    Scores for the top `number_to_rank` nodes, according to the diamond algorithm.
 
     """
     train_seed_mask = ut.seed_list_to_mask(seed_list, G.number_of_nodes())

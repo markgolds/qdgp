@@ -1,5 +1,6 @@
+"""Methods for running models and accumulating results."""
+
 import logging
-import warnings
 from typing import Any, Callable, Dict, List, Optional, Tuple
 
 import networkx as nx
@@ -9,13 +10,11 @@ from sklearn.model_selection import train_test_split
 
 import qdgp.utils as ut
 
-warnings.simplefilter(action="ignore", category=FutureWarning)
-
 logger = logging.getLogger(__name__)
 
 
 def hit_results(
-    method: Callable,
+    model: Callable,
     G: "nx.Graph",
     train_seeds: List[int],
     test_seeds: List[int],
@@ -26,32 +25,32 @@ def hit_results(
 
     Args:
     ----
-        method: Node scoring algorithm to be used.
-        G: The underlying graph.
-        train_seeds: List of seed nodes that are known to the algorithms.
-        test_seeds: List of seed nodes reserved for testing.
-        shuffled_nodes: List of nodes in random order.
-        kwargs: Arguments for model.
+    model: Node scoring algorithm to be used.
+    G: The underlying graph.
+    train_seeds: List of seed nodes that are known to the algorithms.
+    test_seeds: List of seed nodes reserved for testing.
+    shuffled_nodes: List of nodes in random order.
+    kwargs: Arguments for model.
 
     Returns:
     -------
-        cumulative_hits: Number of correct hits per iteration.
-        ordered_recalls: Recall values per iteration.
-        auroc: Area under receiver operator characterist curve.
-        ap: Average precision.
+    cumulative_hits: Number of correct hits per iteration.
+    ordered_recalls: Recall values per iteration.
+    auroc: Area under receiver operator characterist curve.
+    ap: Average precision.
 
     """
     n = G.number_of_nodes()
     train_seed_mask = ut.seed_list_to_mask(train_seeds, n)
     test_mask = (1 - train_seed_mask).astype(bool)
-    logger.info("Training...")
-    scores = method(G=G, seed_list=train_seeds, **kwargs)
-    logger.info("Done.")
+    logger.info("Training beginning...")
+    scores = model(G=G, seed_list=train_seeds, **kwargs)
+    logger.info("Training complete.")
     scores = scores[test_mask]  # discard scores of the train nodes
     y_true = ut.seed_list_to_mask(
         test_seeds,
         n,
-    )  # vector of non-seeds/seeds in test set
+    )  # indicator array of non-seeds(0)/seeds(1) in test set
     y_true = y_true[test_mask]  # discard labels of the train nodes
     ordered_labels = [
         y
@@ -92,20 +91,20 @@ def run_models(
 
     Args:
     ----
-        G: Graph upon which to walk.
-        models: Node scoring algorithms to be used.
-        m_names: Strings for the model names.
-        kws: Arguments for the model methods.
-        num_runs: How many runs per diseases, for averages.
-        top_n: Keep this many of the top scores.
-        diseases: Which diseases to evaluate.
-        n_by_d: Mapping of disease name to seed nodes.
-        split_ratio: Fraction of seeds to use for training.
-        train_test_seed: Random seed for consistent train/test splits.
+    G: Graph upon which to walk.
+    models: Node scoring algorithms to be used.
+    m_names: Strings for the model names.
+    kws: Arguments for the model methods.
+    num_runs: How many runs per diseases, for averages.
+    top_n: Keep this many of the top scores.
+    diseases: Which diseases to evaluate.
+    n_by_d: Mapping of disease name to seed nodes.
+    split_ratio: Fraction of seeds to use for training.
+    train_test_seed: Random seed for consistent train/test splits.
 
     Returns:
     -------
-        List of result values.
+    List of tuples containing results.
 
     """
     # shuffle node list to break ties among scores
