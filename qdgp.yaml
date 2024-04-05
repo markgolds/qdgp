@@ -1,0 +1,14 @@
+name: qdgp
+channels:
+  - conda-forge
+dependencies:
+  - blas=*=*openblas*
+  - c-compiler
+  - cmake
+  - cxx-compiler
+  - libopenblas=*=*openmp*
+  - make
+  - pip
+  - python ==3.10
+  - pip:
+      - poetry >=1.2
