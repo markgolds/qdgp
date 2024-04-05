@@ -42,7 +42,7 @@ def _build_graph(
     Args:
     ----
         g_df: Dataframe with "source" and "target" columns.
-        filter_method: How to filter the ppi network.
+        filter_method: Use the full network or only the greatest connected component.
 
     Returns:
     -------
@@ -77,7 +77,7 @@ def build_graph_wl(
     Args:
     ----
     data_path: Path to data directory.
-    filter_method: How to filter the ppi network.
+    filter_method: Use the full network or only the greatest connected component.
 
     Returns:
     -------
@@ -136,7 +136,7 @@ def build_graph_loami(
     ----
     data_path: Path to data directory.
     network: Name of ppi network.
-    filter_method: How to filter the ppi network.
+    filter_method: Use the full network or only the greatest connected component.
 
     Returns:
     -------
@@ -380,7 +380,7 @@ def load_dataset(
     )
     return G, code_dict, disease_nodes_by_disease
 
-
+nx.
 def get_graph(
     network: VALID_NETWORKS = "biogrid",
     filter_method: FilterGCC = FilterGCC.TRUE,
@@ -390,7 +390,7 @@ def get_graph(
     Args:
     ----
         network: Name of the PPI network.
-        filter_method: How to filter the ppi network.
+        filter_method: Use the full network or only the greatest connected component.
 
     """
     if network not in _valid_networks:

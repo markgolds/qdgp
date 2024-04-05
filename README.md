@@ -16,10 +16,6 @@
    ```
    python -m poetry install
    ```
-4. Install pytorch for local development:
-   ```
-   pip3 install torch --extra-index-url https://download.pytorch.org/whl/cpu
-   ```
 
 ## Usage
 

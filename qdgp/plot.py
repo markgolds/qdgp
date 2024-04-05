@@ -5,8 +5,12 @@ import pandas as pd
 import seaborn as sns
 
 
-def plot_white(df: pd.DataFrame, title: str, path: str = "plots") -> None:
-    """Plot the dataframe results using white background."""
+def plot_results(df: pd.DataFrame, title: str, path: str = "plots") -> None:
+    """Plot the dataframe results using white background.
+
+    Recall and MRR plots will each be saved to png and eps files.
+
+    """
     if not Path(path).exists():
         Path(path).mkdir(parents=True, exist_ok=True)
     models = list(df.Model.unique())
@@ -35,30 +39,6 @@ def plot_white(df: pd.DataFrame, title: str, path: str = "plots") -> None:
     plt.title(title)
     plt.savefig(f"{path}/recall-{title}.png", dpi=600)
     plt.savefig(f"{path}/recall-{title}.eps", dpi=1200)
-    plt.close()
-
-    # Plot mean reciprocal ranks
-    df["Rank"] = df.groupby(["Disease", "Iteration"]).rank(
-        ascending=False,
-        method="min",
-    )["True Hits"]
-    df["Mean Reciprocal Rank"] = 1 / df["Rank"]
-    ax = sns.lineplot(
-        data=df,
-        x="Iteration",
-        y="Mean Reciprocal Rank",
-        hue="Model",
-        errorbar=None,
-        palette=palette,
-        style="Model",
-        hue_order=order,
-        style_order=order,
-    )
-    sns.despine()
-    sns.move_legend(ax, "upper right", title=None)
-    plt.title(title)
-    plt.savefig(f"{path}/RR-{title}.png", dpi=600)
-    plt.savefig(f"{path}/RR-{title}.eps", dpi=1200)
     plt.close()
 
     # Plot mean reciprocal ranks, but first average the recall curves for each disease

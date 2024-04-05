@@ -43,7 +43,10 @@ def main() -> None:
     all_results_df = pd.concat(dfs)
     all_results_df["Model"] = all_results_df["Model"].astype(str)
     all_results_df = all_results_df.drop("Network", axis=1)
-    pl.plot_white(all_results_df, title=plot_title)
+    all_results_df.to_csv(
+        f"{path}/ALLdf-{network}-{disease_set}-{str(split_ratio)}.csv"
+    )
+    pl.plot_results(all_results_df, title=plot_title)
 
 
 if __name__ == "__main__":
