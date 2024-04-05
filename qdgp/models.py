@@ -29,7 +29,7 @@ def qrw_score(
     seed_list: List of seed nodes.
     t: Time for which the walk lasts.
     H: Matrix to use as Hamiltonian.
-    diag: How to set diagoanls of the Hamiltonian.
+    diag: How to set diagonals of the Hamiltonian.
 
     Returns:
     -------
@@ -39,8 +39,8 @@ def qrw_score(
     n = G.number_of_nodes()
     n_seeds = len(seed_list)
     if isinstance(diag, (float, int)):
-        # Construct sparse matrix representation of nxn matrix, with values `diag`
-        # at entry (seed, seed), for each seed in seed_list:
+        # Construct sparse nxn matrix, with values `diag` at
+        # entry (seed, seed), for each seed in seed_list:
         D = csr_matrix(([diag] * n_seeds, (seed_list, seed_list)), shape=(n, n))
         H += D
     # Trick for doing "quantum expm_multiply":

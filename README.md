@@ -12,21 +12,27 @@
    ```
    conda activate qdgp
    ```
-3. Install for local development:
+3. Use poetry to install required packages:
    ```
    python -m poetry install
    ```
 
 ## Usage
 
-Use notebook `run_models.ipynb` to experiment with models and datasets.
+The two main programs of interest are 
 
-Or use the cluster with 1 disease per array:
+	- `predict.py`, for making predictions using the quantum walk method described in[PAPER], and 
+	
+	- `cross-validate.py`, for doing cross-validation accross several models, as in the paper.
+	
+### Predictions
 
-1. Set up models in `run_parallel.py`
+Predictions can be made for any of the networks `{"gmb", "wl", "biogrid", "string", "iid", "apid", "hprd"}` and any of the disease sets `{"gmb", "dgn", "ot"}`. (See paper for descriptions). For a given a disease in the chosen disease, the top N predictions of the quantum walk method can be calculated using `predictions.py`. For example:
+```
+python predictions.py --disease_set gmb --network wl --disease asthma --topn 200
+```
+will produce a `csv` file containing the top 200 predictions for the `asthma` seed genes contained in the `gmb` dataset, with the quantum walk being performed on the `wl` PPI network.
 
-2. Submit a job to run; see `job_p.sh`
+Alternatively, custom disease datasets and/or PPI networks can be used by modifying the code in `qdgp/data.py`.
 
-3. Once all jobs are complete, run `process_parallel.py` to combine all outputs and build plots.
-
-4. Optionally run `plot_grid.py` to build a single grid of all resulting plots.
+### Cross-Validation
