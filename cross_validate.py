@@ -61,7 +61,7 @@ def main() -> None:
     L = nx.laplacian_matrix(G, nodelist=nl)
     A = nx.adjacency_matrix(G, nodelist=nl)
     A_d = A.toarray()
-    CP = expm(-0.3 * L.toarray())
+    CP = expm(-0.3 * L.toarray())  # classical random walk transition matrix
 
     R = md.normalize_adjacency(G, A_d)
 

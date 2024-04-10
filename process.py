@@ -32,7 +32,6 @@ def main() -> None:
     plot_title = f"{disease_set.upper()} | {network.upper()}"
     split_ratio = params["split_ratio"]
     path = Path(f"out/{disease_set}/{network}/{split_ratio}")
-    print(path)
     files = "*.csv"
     dfs = []
     for fname in path.glob(files):

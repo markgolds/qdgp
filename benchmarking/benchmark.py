@@ -11,6 +11,7 @@ import qdgp.data as dt
 import qdgp.models as md
 
 logger = logging.getLogger(__name__)
+formatter = logging.Formatter("%(message)s")
 
 
 def timing(f: Callable) -> Callable:
@@ -21,7 +22,6 @@ def timing(f: Callable) -> Callable:
         te = time()
         f_name = f.__name__
         diff = te - ts
-        logger.info("Function %s took: %2.4f seconds.", f_name, diff)
         return diff
 
     return wrap
@@ -71,27 +71,36 @@ def benchmark_nei(G, nl, diseases, seeds_by_disease) -> None:
         md.neighbourhood_score(G, seeds, A=A_d)
 
 
-def main() -> None:
-    G, code_dict, seeds_by_disease = dt.load_dataset("gmb", "gmb", dt.FilterGCC.TRUE)
+def main(network: str) -> pd.DataFrame:
+    G, code_dict, seeds_by_disease = dt.load_dataset("gmb", network, dt.FilterGCC.TRUE)
     diseases = list(seeds_by_disease.keys())
 
     n = G.number_of_nodes()
     nl = range(n)
-    n_runs = 2
+    n_runs = 5
     rows = []
     funcs = [benchmark_nei, benchmark_dia, benchmark_crw, benchmark_rwr, benchmark_qa]
     for run in range(n_runs):
-        for dis in diseases:
+        for i, dis in enumerate(diseases[:]):
             for f in funcs:
                 res = f(G, nl, [dis], seeds_by_disease)
-                rows.append([f.__name__, dis, len(seeds_by_disease[dis]), res, run])
-                print([f.__name__, dis[:4], len(seeds_by_disease[dis]), res, run])
+                rows.append(
+                    [f.__name__, dis, len(seeds_by_disease[dis]), res, run, network]
+                )
+                logger.info(
+                    "%s - %s - %d - %d %f %d %s",
+                    f.__name__,
+                    dis[:4],
+                    i,
+                    len(seeds_by_disease[dis]),
+                    res,
+                    run,
+                    network,
+                )
 
-    res_df = pd.DataFrame(
-        rows, columns=["Method", "Disease", "Num_seeds", "Time", "Run"]
+    return pd.DataFrame(
+        rows, columns=["Method", "Disease", "Num_seeds", "Time (s)", "Run", "Network"]
     )
-    print(res_df)
-    res_df.to_csv("benchmark.csv")
 
 
 if __name__ == "__main__":
@@ -102,5 +111,18 @@ if __name__ == "__main__":
         filemode="w",
         level=logging.INFO,
     )
-    print("Starting benchmark.")
-    main()
+
+    # Create a handler
+    handler = logging.StreamHandler()
+    handler.setLevel(logging.INFO)
+    handler.setFormatter(formatter)
+
+    # Add the handler to the logger
+    logger.addHandler(handler)
+    logger.info("Starting benchmark.")
+    all_dfs = []
+    for network in ["wl"]:
+        net_df = main(network)
+        all_dfs.append(net_df)
+    DF = pd.concat(all_dfs)
+    DF.to_csv("benchmark.csv")

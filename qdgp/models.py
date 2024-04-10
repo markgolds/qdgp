@@ -1,4 +1,4 @@
-"""Models and helper functions for the main method (qrw_score) and benchmark methods."""
+"""Models and helper functions for various gene prioritization methods."""
 
 import logging
 from typing import List, Optional, Union
@@ -139,6 +139,9 @@ def rwr_score(
 ) -> np.ndarray:
     """Score nodes based on random walk with restart.
 
+    Modified from
+    https://github.com/mims-harvard/pathways/blob/master/prediction/randomWalk.py
+
     Args:
     ----
     G: Graph to use.
@@ -151,7 +154,6 @@ def rwr_score(
     Array containing scores for each node in G.
 
     """
-    # Modified from https://github.com/mims-harvard/pathways/blob/master/prediction/randomWalk.py
     if normalized_adjacency is None:
         normalized_adjacency = normalize_adjacency(G)
     train_seed_mask = ut.seed_list_to_mask(seed_list, G.number_of_nodes())
