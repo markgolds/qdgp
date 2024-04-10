@@ -52,6 +52,14 @@ python predictions.py --disease_set gmb --network wl --disease asthma --topn 200
 
 will produce a `csv` file containing the top 200 predictions for the `asthma` seed genes contained in the `gmb` dataset, with the quantum walk being performed on the `wl` PPI network.
 
+For a list of available diseases for a particular PPI network and disease set, you can run:
+
+```
+python avail_diseases.py -n biogrid -D dgn
+```
+
+as an example.
+
 The time and diagonal hyperparameters can be set by modifying `predictions.py` accordingly.
 
 Alternatively, custom disease datasets and/or PPI networks can be used by modifying the code in `qdgp/data.py`.
