@@ -1,0 +1,42 @@
+[tool.poetry]
+name = "qdgp"
+version = "0.1.0"
+description = ""
+authors = ["Mark Goldsmith <margol@utu.fi>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+numpy = "^1.26.0"
+networkx = "^3.2.1"
+seaborn = "^0.12.0"
+notebook = "^7.1.0"
+scikit-learn = "^1.4.1"
+pandas = "^2.2.0"
+
+[tool.poetry.group.dev.dependencies]
+pre-commit = "*"
+black = "^22"
+isort = "^5"
+
+[tool.poetry.group.test.dependencies]
+pytest = "^7"
+
+[tool.black]
+line-length = 88
+
+[tool.isort]
+line_length = 88
+profile = "black"
+filter_files = true
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+
+[tool.ruff.lint]
+
+select = ["ALL"]
+
+ignore = ["I001", "D100", "D103", "FA100", "N803", "N806", "PLR2004", "T201"]
