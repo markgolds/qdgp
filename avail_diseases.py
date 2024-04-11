@@ -29,7 +29,7 @@ def main() -> None:
         network,
         dt.FilterGCC.TRUE,
     )
-    print("\n".join(list(seeds_by_disease.keys())))
+    print("\n".join(f"{k} (num_seeds:{len(v)})" for k, v in seeds_by_disease.items()))
 
 
 if __name__ == "__main__":
