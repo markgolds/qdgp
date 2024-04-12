@@ -1,6 +1,7 @@
 # QDGP - Quantum Disease Gene Prioritisation
 
 ## Installation
+0. Install [Miniconda](https://docs.anaconda.com/free/miniconda/) if it's not already installed.
 
 1. Clone this repository:
    ```
