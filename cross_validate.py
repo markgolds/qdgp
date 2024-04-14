@@ -61,11 +61,10 @@ def main() -> None:
     L = nx.laplacian_matrix(G, nodelist=nl)
     A = nx.adjacency_matrix(G, nodelist=nl)
     A_d = A.toarray()
-    CP = expm(-0.3 * L.toarray())  # classical random walk transition matrix
+    CP = expm(-0.3 * L.toarray())  # for the classical random walk
+    R = md.normalize_adjacency(G, A_d)  # for random walk with restart
 
-    R = md.normalize_adjacency(G, A_d)
-
-    TOP_N = 300
+    top_n = 300  # for diamond
 
     models = [
         md.qrw_score,
@@ -79,7 +78,7 @@ def main() -> None:
     kws = [
         {"t": 0.45, "H": A, "diag": 5},
         {"P": CP},
-        {"alpha": 9, "number_to_rank": TOP_N, "A": A_d},
+        {"alpha": 9, "number_to_rank": top_n, "A": A_d},
         {"return_prob": 0.4, "normalized_adjacency": R},
         {"A": A_d},
     ]
@@ -97,7 +96,7 @@ def main() -> None:
         m_names,
         kws,
         num_runs=runs,
-        top_n=TOP_N,
+        top_n=top_n,
         diseases=diseases,
         n_by_d=seeds_by_disease,
         split_ratio=split_ratio,

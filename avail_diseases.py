@@ -1,4 +1,4 @@
-"""Get the available diseases for a user chosen PPI network and disease set."""
+"""Get the available diseases for a chosen PPI network and disease set."""
 
 import argparse
 from typing import Dict
@@ -30,6 +30,7 @@ def main() -> None:
         dt.FilterGCC.TRUE,
     )
     print("\n".join(f"{k} (num_seeds:{len(v)})" for k, v in seeds_by_disease.items()))
+    print(f"{len(list(seeds_by_disease.keys()))} diseases available.")
 
 
 if __name__ == "__main__":
