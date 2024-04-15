@@ -1,5 +1,7 @@
 # QDGP - Quantum Disease Gene Prioritisation
 
+This repository contains the data and code used in the paper [Disease Gene Prioritization With Quantum Walks](https://arxiv.org/abs/2311.05486). 
+
 ## Installation
 0. Install [Miniconda](https://docs.anaconda.com/free/miniconda/) if it's not already installed.
 
@@ -27,10 +29,20 @@
 
 The two main programs of interest are 
 
-- `predict.py`, for making predictions using the quantum walk method described in the corresponding paper, and 
+- `cross-validate.py`, for doing cross-validation accross several models, as in the paper, and
 	
-- `cross-validate.py`, for doing cross-validation accross several models, as in the paper.
-	
+- `predict.py`, for making predictions using the quantum walk method described in the corresponding paper.
+
+### Cross-validation
+
+Results from the paper can be reproduced by running `cross_validate.py` with the appropriate arguments. For example,
+
+```
+python cross_validate.py -n biogrid -d dgn --split_ratio 0.5 -runs 10
+```
+
+will run the cross-validation on the BioGRID PPI network with the DisGeNET data set using a train/test split of 50/50, with results being averaged over 10 runs. This will produce `out/dgn-biogrid-0.500.csv`, which can be used for further analysis, as well as plots in the `plots` directory.
+
 ### Predictions
 
 Predictions can be made for any of the networks 
