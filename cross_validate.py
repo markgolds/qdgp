@@ -10,20 +10,19 @@ from scipy.sparse.linalg import expm
 import qdgp.data as dt
 import qdgp.evaluate as ev
 import qdgp.models as md
+import qdgp.plot as pl
 
 logger = logging.getLogger(__name__)
 
 
 def parse_args() -> Dict:
     parser = argparse.ArgumentParser(description="Score genes for a disease.")
-    parser.add_argument("-i", "--index", type=int, default=0)
     parser.add_argument("-r", "--runs", type=int, default=1)
     parser.add_argument("-n", "--network", type=str, default="hprd")
     parser.add_argument("-d", "--disease_set", type=str, default="ot")
     parser.add_argument("-s", "--split_ratio", type=float, default=0.5)
     args = parser.parse_args()
     return {
-        "index": args.index,
         "runs": args.runs,
         "network": args.network,
         "disease_set": args.disease_set,
@@ -31,9 +30,8 @@ def parse_args() -> Dict:
     }
 
 
-def main() -> None:
+def cross_validate() -> None:
     params = parse_args()
-    idx = params["index"]
     runs = params["runs"]
     network = params["network"]
     disease_set = params["disease_set"]
@@ -41,7 +39,7 @@ def main() -> None:
     if not Path("logs").exists():
         Path("logs").mkdir(parents=True, exist_ok=True)
     logging.basicConfig(
-        filename=f"logs/{disease_set}_{network}_output{idx}.log",
+        filename=f"logs/{disease_set}_{network}_output.log",
         filemode="w",
         level=logging.INFO,
     )
@@ -66,6 +64,7 @@ def main() -> None:
 
     top_n = 300  # for diamond
 
+    # Set up the models
     m_qa = md.Model(md.qrw_score, "QA", {"t": 0.45, "H": A, "diag": 5})
     m_dk = md.Model(md.crw_score, "DK", {"P": CP})
     m_dia = md.Model(md.diamond_score, "DIA", {"alpha": 9, "number_to_rank": top_n, "A": A_d})
@@ -104,11 +103,12 @@ def main() -> None:
         ],
     )
     results_df["Network"] = network
-    path = f"out/{disease_set}/{network}/{split_ratio:.3f}/"
+    path = "out"
     if not Path(path).exists():
         Path(path).mkdir(parents=True, exist_ok=True)
-    results_df.to_csv(f"{path}/df{idx}.csv")
+    results_df.to_csv(f"{path}/{disease_set}-{network}-{split_ratio:.3f}.csv")
+    pl.plot_results(results_df, title=f"{disease_set.upper()} | {network.upper()}")
 
 
 if __name__ == "__main__":
-    main()
+    cross_validate()

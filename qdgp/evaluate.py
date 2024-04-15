@@ -101,7 +101,7 @@ def run_models(
 
     Returns:
     -------
-    List of tuples containing results.
+    List of lists containing results.
 
     """
     # shuffle node list to break ties among scores
