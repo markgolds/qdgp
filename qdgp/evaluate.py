@@ -8,13 +8,14 @@ import numpy as np
 from sklearn.metrics import average_precision_score, roc_auc_score
 from sklearn.model_selection import train_test_split
 
+import qdgp.models as md
 import qdgp.utils as ut
 
 logger = logging.getLogger(__name__)
 
 
 def hit_results(
-    model: Callable,
+    score_function: Callable,
     G: "nx.Graph",
     train_seeds: List[int],
     test_seeds: List[int],
@@ -25,7 +26,7 @@ def hit_results(
 
     Args:
     ----
-    model: Node scoring algorithm to be used.
+    score_function: Node scoring algorithm to be used.
     G: The underlying graph.
     train_seeds: List of seed nodes that are known to the algorithms.
     test_seeds: List of seed nodes reserved for testing.
@@ -44,7 +45,7 @@ def hit_results(
     train_seed_mask = ut.seed_list_to_mask(train_seeds, n)
     test_mask = (1 - train_seed_mask).astype(bool)
     logger.info("Training beginning...")
-    scores = model(G=G, seed_list=train_seeds, **kwargs)
+    scores = score_function(G=G, seed_list=train_seeds, **kwargs)
     logger.info("Training complete.")
     scores = scores[test_mask]  # discard scores of the train nodes
     y_true = ut.seed_list_to_mask(
@@ -77,9 +78,7 @@ def hit_results(
 
 def run_models(
     G: "nx.Graph",
-    models: List[Callable],
-    m_names: List[str],
-    kws: List[Dict],
+    models: List[md.Model],
     num_runs: int,
     top_n: int,
     diseases: List[str],
@@ -93,8 +92,6 @@ def run_models(
     ----
     G: Graph upon which to walk.
     models: Node scoring algorithms to be used.
-    m_names: Strings for the model names.
-    kws: Arguments for the model methods.
     num_runs: How many runs per diseases, for averages.
     top_n: Keep this many of the top scores.
     diseases: Which diseases to evaluate.
@@ -142,20 +139,20 @@ def run_models(
             seed_sp = ut.seed_avg_shortest_path(G, train_seeds)
             conductance = nx.conductance(G, train_seeds)
 
-            for m, mn, kw in zip(models, m_names, kws):
-                logger.info("model: %s", mn)
+            for model in models:
+                logger.info("model: %s", model.name)
                 hits, recalls, auroc, ap = hit_results(
-                    m,
+                    model.score_function,
                     G,
                     train_seeds,
                     test_seeds,
                     shuffled_nodes,
-                    **kw,
+                    **model.arguments,
                 )
-                logger.info("model: %s complete.", mn)
+                logger.info("model: %s complete.", model.name)
                 rows.extend(
                     [
-                        mn,
+                        model.name,
                         disease,
                         run + 1,
                         i + 1,

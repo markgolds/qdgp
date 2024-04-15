@@ -1,7 +1,8 @@
 """Models and helper functions for various gene prioritization methods."""
 
 import logging
-from typing import List, Optional, Union
+from dataclasses import dataclass
+from typing import Callable, Dict, List, Optional, Union
 
 import networkx as nx
 import numpy as np
@@ -248,3 +249,12 @@ def diamond_score(
         scores[best_cand] = 1.0 / index
         num_seeds += 1
     return scores
+
+
+@dataclass(frozen=True)
+class Model:
+    """Holder for models containing some other useful data."""
+
+    score_function: Callable  # function that returns scores
+    name: str  # name of the model
+    arguments: Dict  # arguments for the model

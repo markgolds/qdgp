@@ -66,35 +66,17 @@ def main() -> None:
 
     top_n = 300  # for diamond
 
-    models = [
-        md.qrw_score,
-        md.crw_score,
-        md.diamond_score,
-        md.rwr_score,
-        md.neighbourhood_score,
-    ]
+    m_qa = md.Model(md.qrw_score, "QA", {"t": 0.45, "H": A, "diag": 5})
+    m_dk = md.Model(md.crw_score, "DK", {"P": CP})
+    m_dia = md.Model(md.diamond_score, "DIA", {"alpha": 9, "number_to_rank": top_n, "A": A_d})
+    m_rwr = md.Model(md.rwr_score, "RWR", {"return_prob": 0.4, "normalized_adjacency": R})
+    m_nei = md.Model(md.neighbourhood_score, "NEI", {"A": A_d})
 
-    m_names = ["QA", "DK", "Dia", "RWR", "NBR"]
-    kws = [
-        {"t": 0.45, "H": A, "diag": 5},
-        {"P": CP},
-        {"alpha": 9, "number_to_rank": top_n, "A": A_d},
-        {"return_prob": 0.4, "normalized_adjacency": R},
-        {"A": A_d},
-    ]
-
-    if len(models) != len(m_names):
-        e = "len(models) != len(m_names)"
-        raise ValueError(e)
-    if len(models) != len(kws):
-        e = "len(models) == len(kws)"
-        raise ValueError(e)
+    models = [m_qa, m_dk, m_dia, m_rwr, m_nei]
 
     rows = ev.run_models(
         G,
         models,
-        m_names,
-        kws,
         num_runs=runs,
         top_n=top_n,
         diseases=diseases,
