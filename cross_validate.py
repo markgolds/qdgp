@@ -93,11 +93,6 @@ def cross_validate() -> None:
             "Recall",
             "Num_seeds",
             "Num_train_seeds",
-            "Train_gcc_size",
-            "Avg_deg_train_seeds",
-            "Seed_density",
-            "Seed_shortest_paths",
-            "Conductance",
             "Auroc",
             "Ap",
         ],
@@ -107,6 +102,7 @@ def cross_validate() -> None:
     if not Path(path).exists():
         Path(path).mkdir(parents=True, exist_ok=True)
     results_df.to_csv(f"{path}/{disease_set}-{network}-{split_ratio:.3f}.csv")
+    results_df = results_df.drop("Network", axis=1)
     pl.plot_results(results_df, title=f"{disease_set.upper()} | {network.upper()}")
 
 

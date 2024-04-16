@@ -133,12 +133,6 @@ def run_models(
                     train_size=split_ratio,
                 )
 
-            avg_train_seed_deg = ut.avg_seed_degree(G, train_seeds)
-            train_gcc_size = ut.sub_gcc(G, train_seeds)
-            train_density = ut.sub_density(G, train_seeds)
-            seed_sp = ut.seed_avg_shortest_path(G, train_seeds)
-            conductance = nx.conductance(G, train_seeds)
-
             for model in models:
                 logger.info("model: %s", model.name)
                 hits, recalls, auroc, ap = hit_results(
@@ -160,11 +154,6 @@ def run_models(
                         recalls[i],
                         len(genes),
                         len(train_seeds),
-                        train_gcc_size,
-                        avg_train_seed_deg,
-                        train_density,
-                        seed_sp,
-                        conductance,
                         auroc,
                         ap,
                     ]
