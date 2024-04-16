@@ -11,6 +11,7 @@ import qdgp.data as dt
 import qdgp.evaluate as ev
 import qdgp.models as md
 import qdgp.plot as pl
+import qdgp.utils as ut
 
 logger = logging.getLogger(__name__)
 
@@ -104,6 +105,13 @@ def cross_validate() -> None:
     results_df.to_csv(f"{path}/{disease_set}-{network}-{split_ratio:.3f}.csv")
     results_df = results_df.drop("Network", axis=1)
     pl.plot_results(results_df, title=f"{disease_set.upper()} | {network.upper()}")
+
+    tables = ut.summarize_results(results_df)
+    for r in tables:
+        print(r.name)
+        logger.info(r.name)
+        print(r)
+        logger.info(r)
 
 
 if __name__ == "__main__":

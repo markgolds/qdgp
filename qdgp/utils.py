@@ -5,6 +5,7 @@ from typing import Dict, List
 
 import networkx as nx
 import numpy as np
+import pandas as pd
 from scipy.sparse import csr_matrix
 
 
@@ -85,7 +86,6 @@ def sub_density(G: "nx.Graph", seed_list: List) -> float:
 
 def seed_avg_shortest_path(G: "nx.Graph", seed_list: List) -> float:
     """Compute the average shortest path, averaged over ever pair of seeds."""
-
     c = 0
     d = 0
     for u, v in itertools.combinations(seed_list, 2):
@@ -119,3 +119,51 @@ def const_seed_diagonals(G: "nx.Graph", seeds: np.ndarray, val: float) -> csr_ma
     for s in seeds:
         diag[0, s] = val
     return diag
+
+
+def process_df_ap(results_df: pd.DataFrame, iteration: int = 300) -> pd.DataFrame:
+    """Aggregate simulation results to produce average precision results."""
+    results_df = results_df[results_df.Iteration == iteration]
+    results_df = results_df[["Model", "Ap"]]
+    tdf = results_df.groupby(["Model"]).agg({"Ap": ["mean", "std"]}).reset_index()
+    tdf.columns = [" ".join(col).strip() for col in tdf.columns.to_numpy()]
+    return tdf[["Model", "Ap mean", "Ap std"]]
+
+
+def process_df_recall(results_df: pd.DataFrame, iteration: int = 300) -> pd.DataFrame:
+    """Aggregate simulation results to produce mean recall results."""
+    results_df = results_df[results_df.Iteration == iteration]
+    results_df = results_df[["Model", "Recall"]]
+    tdf = results_df.groupby("Model").agg({"Recall": ["mean", "std"]}).reset_index()
+    tdf.columns = [" ".join(col).strip() for col in tdf.columns.to_numpy()]
+    return tdf[["Model", "Recall mean", "Recall std"]]
+
+
+def process_df_mrr(results_df: pd.DataFrame, iteration: int = 300) -> pd.DataFrame:
+    """Aggregate simulation results to produce mean reciprocal rank results."""
+    results_df = results_df[results_df.Iteration == iteration]
+    tdf = results_df
+    tdf = tdf.groupby(["Model", "Disease", "Iteration"]).mean().reset_index()
+    tdf["Rank"] = tdf.groupby(["Disease", "Iteration"]).rank(
+        ascending=False,
+        method="min",
+    )["True Hits"]
+    tdf["MRR"] = 1 / tdf["Rank"]
+    tdf = tdf.groupby("Model").agg({"MRR": ["mean", "std"]}).reset_index()
+    tdf.columns = [" ".join(col).strip() for col in tdf.columns.to_numpy()]
+    return tdf[["Model", "MRR mean", "MRR std"]]
+
+
+def summarize_results(results_df: pd.DataFrame) -> List[pd.DataFrame]:
+    """Build recall, mean reciprocal rank, and average precision tables."""
+    recall25 = process_df_recall(results_df, iteration=25)
+    recall25.name = "Recall@25"
+    recall300 = process_df_recall(results_df, iteration=300)
+    recall300.name = "Recall@300"
+    mrr25 = process_df_mrr(results_df, iteration=25)
+    mrr25.name = "MRR@25"
+    mrr300 = process_df_mrr(results_df, iteration=300)
+    mrr300.name = "MRR@300"
+    ap = process_df_ap(results_df, iteration=1)
+    ap.name = "Avg. Precision"
+    return [recall25, recall300, mrr25, mrr300, ap]

@@ -5,38 +5,9 @@ from pathlib import Path
 
 import pandas as pd
 
+import qdgp.utils as ut
+
 logger = logging.getLogger(__name__)
-
-
-def process_df_ap(all_dfs: pd.DataFrame, iteration: int = 1) -> pd.DataFrame:
-    all_dfs = all_dfs[all_dfs.Iteration == iteration]
-    all_dfs = all_dfs[["Model", "Ap"]]
-    tdf = all_dfs.groupby(["Model"]).agg({"Ap": ["mean", "std"]}).reset_index()
-    tdf.columns = [" ".join(col).strip() for col in tdf.columns.to_numpy()]
-    return tdf[["Model", "Ap mean", "Ap std"]]
-
-
-def process_df_recall(all_dfs: pd.DataFrame, iteration: int = 1) -> pd.DataFrame:
-    all_dfs = all_dfs[all_dfs.Iteration == iteration]
-    all_dfs = all_dfs[["Model", "Recall"]]
-    tdf = all_dfs.groupby("Model").agg({"Recall": ["mean", "std"]}).reset_index()
-    tdf.columns = [" ".join(col).strip() for col in tdf.columns.to_numpy()]
-    return tdf[["Model", "Recall mean", "Recall std"]]
-
-
-def process_df_mrr(all_dfs: pd.DataFrame, iteration: int = 1) -> pd.DataFrame:
-    all_dfs = all_dfs[all_dfs.Iteration == iteration]
-
-    tdf = all_dfs
-    tdf = tdf.groupby(["Model", "Disease", "Iteration"]).mean().reset_index()
-    tdf["Rank"] = tdf.groupby(["Disease", "Iteration"]).rank(
-        ascending=False,
-        method="min",
-    )["True Hits"]
-    tdf["MRR"] = 1 / tdf["Rank"]
-    tdf = tdf.groupby("Model").agg({"MRR": ["mean", "std"]}).reset_index()
-    tdf.columns = [" ".join(col).strip() for col in tdf.columns.to_numpy()]
-    return tdf[["Model", "MRR mean", "MRR std"]]
 
 
 def bold_extreme_values(data, data_max=-1) -> str:
@@ -120,11 +91,11 @@ def build_tables(kind: str = "Recall") -> None:
                     all_df = pd.read_csv(f)
                     all_df = all_df[all_df.Num_seeds >= 15]
                     if kind == "MRR":
-                        res = process_df_mrr(all_df, iteration=i)
+                        res = ut.process_df_mrr(all_df, iteration=i)
                     elif kind == "Ap":
-                        res = process_df_ap(all_df, iteration=i)
+                        res = ut.process_df_ap(all_df, iteration=i)
                     else:
-                        res = process_df_recall(all_df, iteration=i)
+                        res = ut.process_df_recall(all_df, iteration=i)
                     res["Disease Set"] = ds
                     res["Network"] = network
                     all_dfs.append(res)
