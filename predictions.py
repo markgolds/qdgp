@@ -77,7 +77,7 @@ def main() -> None:
         rows, columns=["Gene", "Network", "Disease", "Rank", "Degree"]
     )
     all_dfs.append(results_df)
-    results_df = pd.concat(all_dfs)
+    results_df = pd.concat(all_dfs).sort_values(["Rank"])
     results_df.to_csv(f"Predictions-{disease}.csv")
 
 
