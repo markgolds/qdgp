@@ -7,6 +7,7 @@ import networkx as nx
 import numpy as np
 from sklearn.metrics import average_precision_score, roc_auc_score
 from sklearn.model_selection import train_test_split
+from tqdm import tqdm
 
 import qdgp.models as md
 import qdgp.utils as ut
@@ -109,8 +110,13 @@ def run_models(
     shuffled_nodes = rng.permutation(list(G.nodes()))
 
     rows = []
-    for run in range(num_runs):
-        for c, disease in enumerate(diseases):
+    for run in tqdm(range(num_runs), total=num_runs, desc="Runs"):
+        for c, disease in tqdm(
+            enumerate(diseases),
+            total=len(diseases),
+            desc="Diseases",
+            leave=None,
+        ):
             genes = n_by_d[disease]
             logger.info(
                 "Run: %d/%d - Disease: %d/%d: %s, %d seeds",

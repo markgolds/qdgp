@@ -111,7 +111,7 @@ def cross_validate() -> None:
         print(r.name)
         logger.info(r.name)
         print(r)
-        logger.info(r)
+        logger.info("\n%s", r)
 
 
 if __name__ == "__main__":
