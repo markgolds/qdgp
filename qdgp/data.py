@@ -12,7 +12,7 @@ import pandas as pd
 logger = logging.getLogger(__name__)
 
 VALID_DATASETS = Literal["gmb", "ot", "dgn"]
-_valid_datasets: List[str] = list(get_args(VALID_DATASETS))
+valid_datasets: List[str] = list(get_args(VALID_DATASETS))
 
 VALID_NETWORKS = Literal[
     "gmb",  # https://pubmed.ncbi.nlm.nih.gov/25853560/
@@ -23,7 +23,7 @@ VALID_NETWORKS = Literal[
     "hprd",
     "wl",  # https://pubmed.ncbi.nlm.nih.gov/34132494/
 ]
-_valid_networks: List[str] = list(get_args(VALID_NETWORKS))
+valid_networks: List[str] = list(get_args(VALID_NETWORKS))
 
 
 class FilterGCC(Flag):
@@ -143,8 +143,8 @@ def build_graph_loami(
     Networkx graph and code_dict which maps gene ids to graph nodes.
 
     """
-    if network not in _valid_networks:
-        e = f"{network} not recognized. Must be one of {_valid_networks}"
+    if network not in valid_networks:
+        e = f"{network} not recognized. Must be one of {valid_networks}"
         raise ValueError(e)
     if network == "string":
         G = nx.read_graphml(data_path / "loami/STRING.graphml")
@@ -342,11 +342,11 @@ def load_dataset(
     disease_nodes_by_disease: Dictionary mapping disease names to a list of seed nodes.
 
     """
-    if disease_set not in _valid_datasets:
-        e = f"{disease_set} not recognized. Must be one of {_valid_datasets}"
+    if disease_set not in valid_datasets:
+        e = f"{disease_set} not recognized. Must be one of {valid_datasets}"
         raise ValueError(e)
-    if network not in _valid_networks:
-        e = f"{network} not recognized. Must be one of {_valid_networks}"
+    if network not in valid_networks:
+        e = f"{network} not recognized. Must be one of {valid_networks}"
         raise ValueError(e)
     data_path = Path("data")
 
@@ -401,8 +401,8 @@ def get_graph(
     Undirected Networkx graph of the PPI network.
 
     """
-    if network not in _valid_networks:
-        e = f"{network} not recognized. Must be one of {_valid_networks}"
+    if network not in valid_networks:
+        e = f"{network} not recognized. Must be one of {valid_networks}"
         raise ValueError(e)
     data_path = Path("../data")
 

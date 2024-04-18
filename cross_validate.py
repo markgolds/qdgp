@@ -19,8 +19,20 @@ logger = logging.getLogger(__name__)
 def parse_args() -> Dict:
     parser = argparse.ArgumentParser(description="Score genes for a disease.")
     parser.add_argument("-r", "--runs", type=int, default=1)
-    parser.add_argument("-n", "--network", type=str, default="hprd")
-    parser.add_argument("-d", "--disease_set", type=str, default="ot")
+    parser.add_argument(
+        "-n",
+        "--network",
+        type=str,
+        default="hprd",
+        choices=dt.valid_networks,
+    )
+    parser.add_argument(
+        "-d",
+        "--disease_set",
+        type=str,
+        default="ot",
+        choices=dt.valid_datasets,
+    )
     parser.add_argument("-s", "--split_ratio", type=float, default=0.5)
     args = parser.parse_args()
     return {
@@ -68,8 +80,12 @@ def cross_validate() -> None:
     # Set up the models
     m_qa = md.Model(md.qrw_score, "QA", {"t": 0.45, "H": A, "diag": 5})
     m_dk = md.Model(md.crw_score, "DK", {"P": CP})
-    m_dia = md.Model(md.diamond_score, "DIA", {"alpha": 9, "number_to_rank": top_n, "A": A_d})
-    m_rwr = md.Model(md.rwr_score, "RWR", {"return_prob": 0.4, "normalized_adjacency": R})
+    m_dia = md.Model(
+        md.diamond_score, "DIA", {"alpha": 9, "number_to_rank": top_n, "A": A_d}
+    )
+    m_rwr = md.Model(
+        md.rwr_score, "RWR", {"return_prob": 0.4, "normalized_adjacency": R}
+    )
     m_nei = md.Model(md.neighbourhood_score, "NEI", {"A": A_d})
 
     models = [m_qa, m_dk, m_dia, m_rwr, m_nei]

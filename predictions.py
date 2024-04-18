@@ -16,8 +16,20 @@ logger = logging.getLogger(__name__)
 
 def parse_args() -> Dict:
     parser = argparse.ArgumentParser(description="Score genes for a disease.")
-    parser.add_argument("-n", "--network", type=str, default="gmb")
-    parser.add_argument("-D", "--disease_set", type=str, default="gmb")
+    parser.add_argument(
+        "-n",
+        "--network",
+        type=str,
+        default="gmb",
+        choices=dt.valid_networks,
+    )
+    parser.add_argument(
+        "-D",
+        "--disease_set",
+        type=str,
+        default="gmb",
+        choices=dt.valid_datasets,
+    )
     parser.add_argument("-d", "--disease", type=str, default="vasculitis")
     parser.add_argument("-t", "--topn", type=int, default=200)
 

@@ -10,8 +10,20 @@ def parse_args() -> Dict:
     parser = argparse.ArgumentParser(
         description="List available diseases for a network and disease set.",
     )
-    parser.add_argument("-n", "--network", type=str, default="gmb")
-    parser.add_argument("-D", "--disease_set", type=str, default="gmb")
+    parser.add_argument(
+        "-n",
+        "--network",
+        type=str,
+        default="gmb",
+        choices=dt.valid_networks,
+    )
+    parser.add_argument(
+        "-D",
+        "--disease_set",
+        type=str,
+        default="gmb",
+        choices=dt.valid_datasets,
+    )
 
     args = parser.parse_args()
     return {
