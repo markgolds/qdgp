@@ -78,8 +78,8 @@ def cross_validate() -> None:
     top_n = 300  # for diamond
 
     # Set up the models
-    m_qa = md.Model(md.qrw_score, "QA", {"t": 0.45, "H": A, "diag": 5})
-    m_dk = md.Model(md.crw_score, "DK", {"P": CP})
+    m_qa = md.Model(md.qa_score, "QA", {"t": 0.45, "H": A, "diag": 5})
+    m_dk = md.Model(md.dk_score, "DK", {"P": CP})
     m_dia = md.Model(
         md.diamond_score, "DIA", {"alpha": 9, "number_to_rank": top_n, "A": A_d}
     )

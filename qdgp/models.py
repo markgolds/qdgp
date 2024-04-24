@@ -15,7 +15,7 @@ import qdgp.utils as ut
 logger = logging.getLogger(__name__)
 
 
-def qrw_score(
+def qa_score(
     G: nx.Graph,
     seed_list: List,
     t: float,
@@ -52,7 +52,7 @@ def qrw_score(
     return res.sum(axis=1)
 
 
-def crw_score(
+def dk_score(
     G: nx.Graph,
     seed_list: List,
     t: Optional[float] = None,

@@ -73,7 +73,7 @@ def main() -> None:
     A = nx.adjacency_matrix(G, nodelist=nl)
     rows = []
     seeds = seeds_by_disease[disease]
-    scores = md.qrw_score(G, seeds, H=A, t=0.45, diag=5)
+    scores = md.qa_score(G, seeds, H=A, t=0.45, diag=5)
     train_seed_mask = ut.seed_list_to_mask(seeds, G.number_of_nodes())
     test_mask = (1 - train_seed_mask).astype(bool)
     scores_test = scores[test_mask]

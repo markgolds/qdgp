@@ -32,7 +32,7 @@ def benchmark_qa(G, nl, diseases, seeds_by_disease) -> None:
     A = nx.adjacency_matrix(G, nodelist=nl)
     for disease in diseases:
         seeds = seeds_by_disease[disease]
-        md.qrw_score(G, seeds, t=0.45, H=A, diag=None)
+        md.qa_score(G, seeds, t=0.45, H=A, diag=None)
 
 
 @timing
@@ -40,7 +40,7 @@ def benchmark_crw(G, nl, diseases, seeds_by_disease) -> None:
     L = nx.laplacian_matrix(G, nodelist=nl)
     for disease in diseases:
         seeds = seeds_by_disease[disease]
-        md.crw_score(G, seeds, L=L, t=0.3)
+        md.dk_score(G, seeds, L=L, t=0.3)
 
 
 @timing

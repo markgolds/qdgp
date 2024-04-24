@@ -8,7 +8,7 @@ import qdgp.utils as ut
 
 
 @pytest.mark.parametrize(("n_nodes", "diag"), [(1000, None), (1000, 5), (1000, 5.5)])
-def test_qrw_score(n_nodes, diag):
+def test_qa_score(n_nodes, diag):
     n_seeds = 30
     t = 1.0
     diag = 5
@@ -17,7 +17,7 @@ def test_qrw_score(n_nodes, diag):
     rng = np.random.default_rng(1337)
     seeds = rng.choice(np.arange(n_nodes), n_seeds, False)
 
-    r1 = md.qrw_score(G, list(seeds), t=t, H=H, diag=diag)
+    r1 = md.qa_score(G, list(seeds), t=t, H=H, diag=diag)
 
     H_ = H.toarray()
     for s in seeds:
@@ -30,7 +30,7 @@ def test_qrw_score(n_nodes, diag):
 
 
 @pytest.mark.parametrize(("n_nodes"), [100, 1000])
-def test_crw_score(n_nodes):
+def test_dk_score(n_nodes):
     n_seeds = 30
     t = 1.0
     G = nx.erdos_renyi_graph(n=n_nodes, p=0.1)
@@ -38,7 +38,7 @@ def test_crw_score(n_nodes):
     rng = np.random.default_rng(1337)
     seeds = rng.choice(np.arange(n_nodes), n_seeds, False)
 
-    r1 = md.crw_score(G, list(seeds), t=t, L=L, P=None)
+    r1 = md.dk_score(G, list(seeds), t=t, L=L, P=None)
 
     P = expm(-t * L.toarray())
     r2 = ut.scorify(P, list(seeds))
