@@ -118,7 +118,9 @@ def cross_validate() -> None:
     path = "out"
     if not Path(path).exists():
         Path(path).mkdir(parents=True, exist_ok=True)
-    results_df.to_csv(f"{path}/{disease_set}-{network}-{split_ratio:.3f}.csv")
+    results_file = f"{path}/{disease_set}-{network}-{split_ratio:.3f}.csv"
+    results_df.to_csv(results_file)
+    print(f"Results saved to {results_file}.")
     results_df = results_df.drop("Network", axis=1)
     pl.plot_results(results_df, title=f"{disease_set.upper()} | {network.upper()}")
 

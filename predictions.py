@@ -90,7 +90,9 @@ def main() -> None:
     )
     all_dfs.append(results_df)
     results_df = pd.concat(all_dfs).sort_values(["Rank"])
-    results_df.to_csv(f"Predictions-{disease}.csv")
+    preds_file = f"out/Predictions-{network}-{disease_set}-{disease}.csv"
+    results_df.to_csv(preds_file)
+    print(f"Predictions saved to {preds_file}.")
 
 
 if __name__ == "__main__":

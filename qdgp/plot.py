@@ -37,9 +37,12 @@ def plot_results(df: pd.DataFrame, title: str, path: str = "plots") -> None:
     )
     sns.despine()
     plt.title(title)
-    plt.savefig(f"{path}/recall-{title}.png", dpi=600)
-    plt.savefig(f"{path}/recall-{title}.eps", dpi=1200)
+    file_title = title.replace(" ", "").replace("|", "-")
+    plot_file = f"{path}/recall-{file_title}"
+    plt.savefig(f"{plot_file}.png", dpi=600)
+    plt.savefig(f"{plot_file}.pdf", dpi=1200)
     plt.close()
+    print(f"Recall plots saved to {plot_file}.png/pdf.")
 
     # Plot mean reciprocal ranks, but first average the recall curves for each disease
     tdf = df.groupby(["Model", "Disease", "Iteration"]).mean().reset_index()
@@ -63,6 +66,9 @@ def plot_results(df: pd.DataFrame, title: str, path: str = "plots") -> None:
     sns.despine()
     sns.move_legend(ax, "upper right", title=None)
     plt.title(title)
-    plt.savefig(f"{path}/MRR-{title}.png", dpi=600)
-    plt.savefig(f"{path}/MRR-{title}.eps", dpi=1200)
+    file_title = title.replace(" ", "").replace("|", "-")
+    plot_file = f"{path}/MRR-{file_title}"
+    plt.savefig(f"{plot_file}.png", dpi=600)
+    plt.savefig(f"{plot_file}.pdf", dpi=1200)
     plt.close()
+    print(f"MRR plots saved to {plot_file}.png/pdf.")
