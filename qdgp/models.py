@@ -81,7 +81,7 @@ def dk_score(
     """
     if P is None:
         if L is None or t is None:
-            e = "One of L and t  must not be provided if P is None."
+            e = "L and t must be provided if P is None."
             raise ValueError(e)
         train_seed_mask = ut.seed_list_to_mask(seed_list, G.number_of_nodes())
         return expm_multiply(-t * L, train_seed_mask)
