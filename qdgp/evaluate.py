@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 
 def hit_results(
     score_function: Callable,
-    G: "nx.Graph",
+    G: nx.Graph,
     train_seeds: List[int],
     test_seeds: List[int],
     shuffled_nodes: np.ndarray,
@@ -78,7 +78,7 @@ def hit_results(
 
 
 def run_models(
-    G: "nx.Graph",
+    G: nx.Graph,
     models: List[md.Model],
     num_runs: int,
     top_n: int,
