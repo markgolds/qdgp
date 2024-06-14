@@ -38,7 +38,7 @@ The two main programs of interest are
 Results from the paper can be reproduced by running `cross_validate.py` with the appropriate arguments. For example,
 
 ```
-python cross_validate.py -n biogrid -d dgn --split_ratio 0.5 -runs 10
+python cross_validate.py -n biogrid -d dgn --split_ratio 0.5 --runs 10
 ```
 
 will run the cross-validation on the BioGRID PPI network with the DisGeNET data set using a train/test split of 50/50, with results being averaged over 10 runs. This will produce `out/dgn-biogrid-0.500.csv`, which can be used for further analysis, as well as plots in the `plots` directory.
