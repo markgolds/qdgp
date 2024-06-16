@@ -46,8 +46,9 @@ def benchmark_crw(G, nl, diseases, seeds_by_disease) -> None:
 @timing
 def benchmark_rwr(G, nl, diseases, seeds_by_disease) -> None:
     A = nx.adjacency_matrix(G, nodelist=nl)
-    A_d = A.toarray()
-    R = md.normalize_adjacency(G, A_d)
+    # A_d = A.toarray()
+    # R = md.normalize_adjacency(G, A_d)
+    R = md.normalize_adjacency(G, A)  # for random walk with restart
     for disease in diseases:
         seeds = seeds_by_disease[disease]
         md.rwr_score(G, seeds, normalized_adjacency=R, return_prob=0.4)

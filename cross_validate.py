@@ -72,19 +72,28 @@ def cross_validate() -> None:
     L = nx.laplacian_matrix(G, nodelist=nl)
     A = nx.adjacency_matrix(G, nodelist=nl)
     A_d = A.toarray()
-    CP = expm(-0.3 * L.toarray())  # for the classical random walk
-    R = md.normalize_adjacency(G, A_d)  # for random walk with restart
+    # CP = expm(-0.3 * L.toarray())  # for the classical random walk
+    R = md.normalize_adjacency(G, A)  # for random walk with restart
+    m_rwr = md.Model(
+        md.rwr_score,
+        "RWR",
+        {"return_prob": 0.4, "normalized_adjacency": R},
+    )
 
     top_n = 300  # for diamond
 
     # Set up the models
     m_qa = md.Model(md.qa_score, "QA", {"t": 0.45, "H": A, "diag": 5})
-    m_dk = md.Model(md.dk_score, "DK", {"P": CP})
+    m_dk = md.Model(md.dk_score, "DK", {"t": 0.3, "L": L})
     m_dia = md.Model(
-        md.diamond_score, "DIA", {"alpha": 9, "number_to_rank": top_n, "A": A_d}
+        md.diamond_score,
+        "DIA",
+        {"alpha": 9, "number_to_rank": top_n, "A": A_d},
     )
     m_rwr = md.Model(
-        md.rwr_score, "RWR", {"return_prob": 0.4, "normalized_adjacency": R}
+        md.rwr_score,
+        "RWR",
+        {"return_prob": 0.4, "normalized_adjacency": R},
     )
     m_nei = md.Model(md.neighbourhood_score, "NEI", {"A": A_d})
 
@@ -98,6 +107,7 @@ def cross_validate() -> None:
         diseases=diseases,
         n_by_d=seeds_by_disease,
         split_ratio=split_ratio,
+        # train_test_seed=1,
     )
     results_df = pd.DataFrame(
         rows,

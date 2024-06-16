@@ -6,7 +6,7 @@ from typing import Callable, Dict, List, Optional, Union
 
 import networkx as nx
 import numpy as np
-from scipy.sparse import csr_matrix
+from scipy.sparse import csr_matrix, diags
 from scipy.sparse.linalg import expm_multiply
 from scipy.stats import hypergeom
 
@@ -111,32 +111,32 @@ def neighbourhood_score(G: nx.Graph, seed_list: List, A: np.ndarray) -> np.ndarr
     return scores * (1 - train_seed_mask)
 
 
-def normalize_adjacency(G: nx.Graph, A: Optional[np.ndarray] = None) -> np.ndarray:
+def normalize_adjacency(G: nx.Graph, A: csr_matrix) -> csr_matrix:
     """Compute normalized adjacnecy matrix for RWR.
 
     Args:
     ----
     G: Graph to use.
-    A: Dense adjacency of G. Calculated on the fly if not provided.
+    A: Sparse representation of the adjacency matrix.
 
     Returns:
     -------
     The normalized adjacency matrix, defined by D^(-1/2)AD^(-1/2).
 
     """
-    # TODO: will break if there are isolated nodes?:
-    if A is None:
-        A = nx.adjacency_matrix(G).toarray()
-    D = [1 / np.sqrt(d) for _, d in G.degree(range(G.number_of_nodes()))]
-    D = np.diag(D)
-    return D @ A @ D
+    degrees = np.array([d for _, d in G.degree(range(G.number_of_nodes()))])
+    with np.errstate(divide="ignore"):  # Handle division by zero for isolated nodes
+        D_inv_sqrt = np.power(degrees, -0.5)
+    D_inv_sqrt[np.isinf(D_inv_sqrt)] = 0  # Replace inf with 0 for isolated nodes
+    D_inv_sqrt_matrix = diags(D_inv_sqrt)
+    return D_inv_sqrt_matrix @ A @ D_inv_sqrt_matrix
 
 
 def rwr_score(
     G: nx.Graph,
     seed_list: List,
+    normalized_adjacency: csr_matrix,
     return_prob: float = 0.75,
-    normalized_adjacency: Optional[np.ndarray] = None,
 ) -> np.ndarray:
     """Score nodes based on random walk with restart.
 
@@ -155,8 +155,7 @@ def rwr_score(
     Array containing scores for each node in G.
 
     """
-    if normalized_adjacency is None:
-        normalized_adjacency = normalize_adjacency(G)
+    # Generate the train_seed_mask
     train_seed_mask = ut.seed_list_to_mask(seed_list, G.number_of_nodes())
     assoc_gene_vector = train_seed_mask
     ratio = return_prob
@@ -164,7 +163,7 @@ def rwr_score(
     p0 = assoc_gene_vector / np.sum(assoc_gene_vector)
     old_vector = p0
     while convergence_metric > 1e-6:
-        new_vector = (1 - ratio) * np.dot(normalized_adjacency, old_vector) + ratio * p0
+        new_vector = (1 - ratio) * normalized_adjacency.dot(old_vector) + ratio * p0
         convergence_metric = np.linalg.norm(new_vector - old_vector)
         old_vector = np.copy(new_vector)
     return old_vector * (1 - assoc_gene_vector)
