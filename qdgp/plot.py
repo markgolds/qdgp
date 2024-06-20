@@ -1,8 +1,11 @@
+import warnings
 from pathlib import Path
 
 import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
+
+warnings.filterwarnings("ignore", category=FutureWarning, message=".*use_inf_as_na.*")
 
 
 def plot_results(df: pd.DataFrame, title: str, path: str = "plots") -> None:
@@ -22,7 +25,6 @@ def plot_results(df: pd.DataFrame, title: str, path: str = "plots") -> None:
         if m != "QA":
             order.append(m)
     palette["QA"] = "#54B6B8"
-
     # Plot recalls
     sns.lineplot(
         data=df,
