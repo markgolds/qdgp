@@ -132,7 +132,7 @@ def cross_validate() -> None:
     results_df.to_csv(results_file)
     print(f"Results saved to {results_file}.")
     results_df = results_df.drop("Network", axis=1)
-    pl.plot_results(results_df, title=f"{disease_set.upper()} | {network.upper()}")
+    # pl.plot_results(results_df, title=f"{disease_set.upper()} | {network.upper()}")
 
     tables = ut.summarize_results(results_df)
     for r in tables:
